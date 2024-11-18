@@ -23,8 +23,15 @@ const TransactionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  description: {
+    type: String,
+    required: false
+  }
 }, {
   timestamps: true,
 });
 
-export default mongoose.models.Transaction || mongoose.model('Transaction', TransactionSchema);
+// Delete model if it exists to prevent OverwriteModelError
+mongoose.models = {};
+
+export default mongoose.model('Transaction', TransactionSchema);
