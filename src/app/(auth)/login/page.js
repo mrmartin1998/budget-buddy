@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -20,6 +20,7 @@ export default function Login() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        credentials: 'include',
       });
 
       const data = await res.json();
@@ -31,8 +32,8 @@ export default function Login() {
       // Store the token in localStorage
       localStorage.setItem('token', data.token);
 
-      // Redirect to dashboard after successful login
-      router.push('/dashboard');
+      // Force a hard redirect to dashboard
+      window.location.href = '/dashboard';
     } catch (error) {
       setError(error.message);
     }

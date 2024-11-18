@@ -58,16 +58,31 @@ export async function POST(request) {
     }
 
     // Create JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    const token = jwt.sign(
+      { 
+        userId: user._id,
+        email: user.email 
+      }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '1h' }
+    );
 
-    const response = NextResponse.json({ message: 'Login successful', token });
+    const response = NextResponse.json({ 
+      success: true,
+      message: 'Login successful', 
+      token,
+      user: {
+        id: user._id,
+        email: user.email
+      }
+    }, { status: 200 });
+
+    // Set HTTP-only cookie
     response.cookies.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 3600 // 1 hour in seconds
+      sameSite: 'lax',
+      maxAge: 3600 // 1 hour
     });
 
     return response;

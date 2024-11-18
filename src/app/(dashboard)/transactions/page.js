@@ -12,33 +12,33 @@ export default function Transactions() {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          router.push('/login');
-          return;
-        }
-
-        const res = await fetch('/api/transactions', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Failed to fetch transactions');
-        }
-
-        setTransactions(data.transactions);
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
     fetchTransactions();
-  }, [router]);
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+
+      const res = await fetch('/api/transactions', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to fetch transactions');
+      }
+
+      setTransactions(data.transactions);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
 
   const handleAddTransaction = async (formData) => {
     setError('');
@@ -55,9 +55,10 @@ export default function Transactions() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
+        credentials: 'include',
       });
 
       const data = await res.json();
@@ -75,7 +76,15 @@ export default function Transactions() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Transactions</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Transactions</h1>
+        <button
+          onClick={() => router.push('/transactions')}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
+        >
+          Go to Transactions
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>

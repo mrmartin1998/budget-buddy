@@ -6,8 +6,10 @@ export function middleware(request) {
   const token = request.cookies.get('token')?.value;
 
   // Check if the request is for protected routes
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/api/transactions') ||
-                          request.nextUrl.pathname === '/';
+  const isProtectedRoute = 
+    request.nextUrl.pathname.startsWith('/api/transactions') ||
+    request.nextUrl.pathname.startsWith('/transactions') ||
+    request.nextUrl.pathname === '/dashboard';
 
   // If it's a protected route and no valid token, redirect to login
   if (isProtectedRoute) {
@@ -15,8 +17,10 @@ export function middleware(request) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    const decodedToken = verifyToken(token);
-    if (!decodedToken) {
+    try {
+      verifyToken(token);
+      return NextResponse.next();
+    } catch (error) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
@@ -24,10 +28,10 @@ export function middleware(request) {
   return NextResponse.next();
 }
 
-// Configure which routes to run middleware on
 export const config = {
   matcher: [
-    '/',
+    '/dashboard',
+    '/transactions',
     '/api/transactions/:path*'
   ]
 };

@@ -1,89 +1,98 @@
 'use client';
 
 import { useState } from 'react';
-import Input from '../ui/Input';
-import Button from '../ui/Button';
 
-const TransactionForm = ({ onSubmit }) => {
-  const [formData, setFormData] = useState({
-    amount: '',
-    type: '',
-    category: '',
-    date: new Date().toISOString().split('T')[0]
-  });
+export default function TransactionForm({ onSubmit }) {
+  const [amount, setAmount] = useState('');
+  const [type, setType] = useState('expense');
+  const [category, setCategory] = useState('');
+  const [description, setDescription] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
-    setFormData({
-      amount: '',
-      type: '',
-      category: '',
-      date: new Date().toISOString().split('T')[0]
-    });
+    
+    const formData = {
+      amount: Number(amount),
+      type,
+      category,
+      description,
+      date: new Date()
+    };
+
+    try {
+      await onSubmit(formData);
+      
+      // Reset form
+      setAmount('');
+      setType('expense');
+      setCategory('');
+      setDescription('');
+    } catch (error) {
+      console.error('Error submitting transaction:', error);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Input
+        <label className="block text-sm font-medium text-gray-700">Amount</label>
+        <input
           type="number"
-          value={formData.amount}
-          onChange={handleChange}
-          placeholder="Amount"
-          name="amount"
+          step="0.01"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           required
         />
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-700">Type</label>
         <select
-          name="type"
-          value={formData.type}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           required
         >
-          <option value="">Select Type</option>
-          <option value="income">Income</option>
           <option value="expense">Expense</option>
+          <option value="income">Income</option>
         </select>
       </div>
 
       <div>
-        <Input
-          type="text"
-          value={formData.category}
-          onChange={handleChange}
-          placeholder="Category"
-          name="category"
+        <label className="block text-sm font-medium text-gray-700">Category</label>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           required
-        />
+        >
+          <option value="">Select a category</option>
+          <option value="groceries">Groceries</option>
+          <option value="utilities">Utilities</option>
+          <option value="entertainment">Entertainment</option>
+          <option value="transportation">Transportation</option>
+          <option value="salary">Salary</option>
+          <option value="other">Other</option>
+        </select>
       </div>
 
       <div>
-        <Input
-          type="date"
-          value={formData.date}
-          onChange={handleChange}
-          name="date"
-          required
+        <label className="block text-sm font-medium text-gray-700">Description (Optional)</label>
+        <input
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
 
-      <Button type="submit">
+      <button
+        type="submit"
+        className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
         Add Transaction
-      </Button>
+      </button>
     </form>
   );
-};
-
-export default TransactionForm;
+}

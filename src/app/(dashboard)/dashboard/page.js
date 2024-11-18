@@ -1,20 +1,19 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      window.location.href = '/login';
+      router.push('/login');
       return;
     }
-
-    // You can add API call here to fetch user data if needed
     setLoading(false);
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
@@ -32,6 +31,12 @@ export default function Dashboard() {
         <p className="text-gray-600">
           This is your personal dashboard. More features coming soon!
         </p>
+        <button
+          onClick={() => router.push('/transactions')}
+          className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
+        >
+          View Transactions
+        </button>
       </div>
     </div>
   );

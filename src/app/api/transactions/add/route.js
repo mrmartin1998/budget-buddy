@@ -1,6 +1,6 @@
-import { dbConnect } from '../../dbConnect';
-import Transaction from '../../models/Transaction';
-import { verifyToken } from '../../auth/verifyToken';
+import { dbConnect } from '@/lib/db/connect';
+import Transaction from '@/lib/db/models/Transaction';
+import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
