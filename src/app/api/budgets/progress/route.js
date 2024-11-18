@@ -6,75 +6,68 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
 export async function GET() {
-  await dbConnect();
-  
-  const headersList = headers();
-  const authorization = headersList.get('authorization');
-
-  if (!authorization) {
-    return NextResponse.json(
-      { error: 'Authorization header missing' },
-      { status: 401 }
-    );
-  }
-
-  const token = authorization.split(' ')[1];
-  let userId;
-  
   try {
-    const decoded = verifyToken(token);
-    userId = decoded.userId;
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Invalid or expired token' },
-      { status: 401 }
-    );
-  }
+    await dbConnect();
+    
+    const headersList = headers();
+    const authorization = headersList.get('authorization');
 
-  try {
-    // Get all budgets for the user
+    if (!authorization) {
+      return NextResponse.json(
+        { error: 'Authorization header missing' },
+        { status: 401 }
+      );
+    }
+
+    const token = authorization.split(' ')[1];
+    let userId;
+    
+    try {
+      const decoded = verifyToken(token);
+      userId = decoded.userId;
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid token' },
+        { status: 401 }
+      );
+    }
+
+    // Get all budgets
     const budgets = await Budget.find({ userId });
+    console.log('Found budgets:', budgets); // Debug log
 
     // Get current month's start date
-    const currentDate = new Date();
-    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
 
-    // Calculate spending for each budget
+    // Calculate progress for each budget
     const budgetsWithProgress = await Promise.all(
       budgets.map(async (budget) => {
-        const spent = await Transaction.aggregate([
-          {
-            $match: {
-              userId,
-              category: budget.category,
-              type: 'expense',
-              date: { $gte: startOfMonth }
-            }
-          },
-          {
-            $group: {
-              _id: null,
-              total: { $sum: '$amount' }
-            }
-          }
-        ]);
+        const transactions = await Transaction.find({
+          userId,
+          category: budget.category,
+          type: 'expense',
+          date: { $gte: startOfMonth }
+        });
 
-        const spentAmount = spent[0]?.total || 0;
-        const percentage = (spentAmount / budget.limit) * 100;
+        const spent = transactions.reduce((total, t) => total + t.amount, 0);
+        const percentage = (spent / budget.limit) * 100;
 
         return {
           _id: budget._id,
           category: budget.category,
           limit: budget.limit,
-          spent: spentAmount,
-          percentage,
+          spent,
+          percentage
         };
       })
     );
 
+    console.log('Budgets with progress:', budgetsWithProgress); // Debug log
     return NextResponse.json({ budgets: budgetsWithProgress });
   } catch (error) {
-    console.error('Error calculating budget progress:', error);
+    console.error('Error in budget progress:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
