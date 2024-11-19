@@ -3,9 +3,5 @@
     "devCommand": "next dev",
     "installCommand": "npm install",
     "framework": "nextjs",
-    "outputDirectory": ".next",
-    "env": {
-      "MONGODB_URI": "@mongodb-uri",
-      "JWT_SECRET": "@jwt-secret"
-    }
-  }
+    "outputDirectory": ".next"
+}
