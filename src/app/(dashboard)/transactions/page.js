@@ -12,10 +12,6 @@ export default function Transactions() {
   const [success, setSuccess] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
-
   const fetchTransactions = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
@@ -40,6 +36,10 @@ export default function Transactions() {
       setError(error.message);
     }
   }, [router]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   const handleAddTransaction = async (formData) => {
     setError('');
@@ -77,7 +77,6 @@ export default function Transactions() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      {/*<StatsOverview />*/}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Transactions</h1>
       </div>
