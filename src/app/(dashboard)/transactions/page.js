@@ -76,22 +76,26 @@ export default function Transactions() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Transactions</h1>
       </div>
       <StatsOverview />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Add Transaction</h2>
-          {error && <p className="text-red-500 mb-4">{error}</p>}
-          {success && <p className="text-green-500 mb-4">{success}</p>}
-          <TransactionForm onSubmit={handleAddTransaction} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <div className="space-y-6">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-4">Add Transaction</h2>
+            {error && <p className="text-red-500 mb-4">{error}</p>}
+            {success && <p className="text-green-500 mb-4">{success}</p>}
+            <TransactionForm onSubmit={handleAddTransaction} />
+          </div>
         </div>
 
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Transaction List</h2>
-          <TransactionList transactions={transactions} />
+        <div className="space-y-6">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-4">Transaction List</h2>
+            <TransactionList transactions={transactions} />
+          </div>
         </div>
       </div>
     </div>
