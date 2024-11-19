@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import TransactionForm from '@/components/transactions/TransactionForm';
 import TransactionList from '@/components/transactions/TransactionList';
@@ -14,9 +14,9 @@ export default function Transactions() {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -39,7 +39,7 @@ export default function Transactions() {
     } catch (error) {
       setError(error.message);
     }
-  };
+  }, [router]);
 
   const handleAddTransaction = async (formData) => {
     setError('');
