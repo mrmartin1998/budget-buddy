@@ -2,6 +2,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { AlertProvider } from '@/components/providers/AlertProvider';
+import { AccountProvider } from '@/contexts/AccountContext';
 import Navbar from '@/components/layout/Navbar';
 import AlertBadge from '@/components/alerts/AlertBadge';
 
@@ -27,13 +28,15 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           <AlertProvider>
-            <div className="min-h-screen bg-gray-50">
-              <Navbar />
-              <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                {children}
-              </main>
-              <AlertBadge />
-            </div>
+            <AccountProvider>
+              <div className="min-h-screen bg-gray-50">
+                <Navbar />
+                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                  {children}
+                </main>
+                <AlertBadge />
+              </div>
+            </AccountProvider>
           </AlertProvider>
         </AuthProvider>
       </body>

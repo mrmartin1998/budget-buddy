@@ -1,37 +1,18 @@
 import mongoose from 'mongoose';
 
 const TransactionSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  amount: {
-    type: Number,
-    required: [true, 'Please provide an amount'],
-  },
-  type: {
-    type: String,
-    enum: ['income', 'expense'],
-    required: [true, 'Please specify the transaction type'],
-  },
-  category: {
-    type: String,
-    required: [true, 'Please specify a category'],
-  },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-  description: {
-    type: String,
-    required: false
+  userId: { type: String, required: true },
+  type: { type: String, required: true, enum: ['income', 'expense'] },
+  amount: { type: Number, required: true },
+  category: { type: String, required: true },
+  description: String,
+  date: { type: Date, default: Date.now },
+  accountId: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true },
+  account: {
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    type: { type: String, required: true }
   }
-}, {
-  timestamps: true,
-});
+}, { timestamps: true });
 
-// Delete model if it exists to prevent OverwriteModelError
-mongoose.models = {};
-
-export default mongoose.model('Transaction', TransactionSchema);
+export default mongoose.models.Transaction || mongoose.model('Transaction', TransactionSchema);

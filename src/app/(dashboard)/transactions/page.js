@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import TransactionForm from '@/components/transactions/TransactionForm';
 import TransactionList from '@/components/transactions/TransactionList';
 import StatsOverview from '@/components/dashboard/StatsOverview';
+import { useAccounts } from '@/contexts/AccountContext';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const router = useRouter();
+  const { handleTransaction } = useAccounts();
 
   const fetchTransactions = useCallback(async () => {
     try {
@@ -67,6 +69,8 @@ export default function Transactions() {
       if (!res.ok) {
         throw new Error(data.error || 'Failed to add transaction');
       }
+
+      handleTransaction(data.transaction);
 
       setSuccess('Transaction added successfully!');
       setTransactions((prev) => [...prev, data.transaction]);

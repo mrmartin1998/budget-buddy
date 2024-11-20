@@ -6,6 +6,7 @@ import RecentTransactions from '@/components/dashboard/RecentTransactions';
 import CategoryBreakdown from '@/components/dashboard/CategoryBreakdown';
 import BudgetProgress from '@/components/budget/BudgetProgress';
 import BudgetProgressMini from '@/components/budget/BudgetProgressMini';
+import AccountManager from '@/components/accounts/AccountManager';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -33,6 +34,10 @@ export default function Dashboard() {
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Dashboard</h1>
       
       <StatsOverview />
+      
+      <div className="mt-8 mb-8">
+        <AccountManager />
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         <div className="space-y-6">

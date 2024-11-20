@@ -1,7 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useAccounts } from '@/contexts/AccountContext';
 
 export default function StatsOverview() {
+  const { accounts, getTotalBalance } = useAccounts();
   const [stats, setStats] = useState({
     totalBalance: 0,
     totalIncome: 0,
@@ -9,23 +11,18 @@ export default function StatsOverview() {
   });
 
   useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/transactions/stats', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
-      setStats(data);
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  };
+    const totalBalance = getTotalBalance();
+    const totalIncome = accounts.reduce((total, account) => 
+      total + (parseFloat(account.totalIncome) || 0), 0);
+    const totalExpenses = accounts.reduce((total, account) => 
+      total + (parseFloat(account.totalExpenses) || 0), 0);
+    
+    setStats({
+      totalBalance: parseFloat(totalBalance),
+      totalIncome: parseFloat(totalIncome),
+      totalExpenses: parseFloat(totalExpenses)
+    });
+  }, [accounts, getTotalBalance]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
