@@ -4,49 +4,35 @@ import { useState } from 'react';
 import { useAccounts } from '@/contexts/AccountContext';
 
 export default function AccountManager() {
-  const { accounts, addAccount, updateAccount, deleteAccount } = useAccounts();
+  const { accounts, addAccount, deleteAccount } = useAccounts();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newAccount, setNewAccount] = useState({
     name: '',
     type: 'cash',
     balance: '',
   });
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-    
-    try {
-      await addAccount({
-        ...newAccount,
-        balance: parseFloat(newAccount.balance)
-      });
-      setNewAccount({ name: '', type: 'cash', balance: '' });
-      setShowAddForm(false);
-    } catch (err) {
-      setError(err.message || 'Failed to add account');
-    } finally {
-      setIsLoading(false);
-    }
+    addAccount(newAccount);
+    setShowAddForm(false);
+    setNewAccount({ name: '', type: 'cash', balance: '' });
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
+    <div>
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Accounts</h2>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
         >
-          {showAddForm ? 'Cancel' : 'Add Account'}
+          Add Account
         </button>
       </div>
 
       {showAddForm && (
-        <form onSubmit={handleSubmit} className="mb-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white p-4 rounded-lg shadow-md mb-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Account Name
@@ -70,9 +56,7 @@ export default function AccountManager() {
               className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             >
               <option value="cash">Cash</option>
-              <option value="checking">Checking</option>
-              <option value="savings">Savings</option>
-              <option value="credit">Credit Card</option>
+              <option value="bank">Bank Account</option>
             </select>
           </div>
 
@@ -99,18 +83,16 @@ export default function AccountManager() {
         </form>
       )}
 
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {accounts.map((account) => (
           <div
             key={account.id}
-            className="flex items-center justify-between p-4 border rounded-lg"
+            className={`bg-white rounded-lg shadow-md p-4 sm:p-6 ${
+              account.type === 'cash' ? 'border-l-4 border-green-500' : 'border-l-4 border-blue-500'
+            }`}
           >
-            <div>
-              <h3 className="font-medium">{account.name}</h3>
-              <p className="text-sm text-gray-500 capitalize">{account.type}</p>
-            </div>
-            <div className="text-right">
-              <p className="font-medium">${account.balance.toFixed(2)}</p>
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-lg font-medium text-gray-900">{account.name}</h3>
               {!account.isDefault && (
                 <button
                   onClick={() => deleteAccount(account.id)}
@@ -120,6 +102,10 @@ export default function AccountManager() {
                 </button>
               )}
             </div>
+            <p className="text-sm text-gray-500 capitalize mb-2">{account.type}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              ${parseFloat(account.balance).toFixed(2)}
+            </p>
           </div>
         ))}
       </div>

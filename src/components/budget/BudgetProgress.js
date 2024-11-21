@@ -35,7 +35,7 @@ export default function BudgetProgress() {
     <div className="space-y-4">
       {error && <p className="text-red-500">{error}</p>}
       {budgets.map((budget) => (
-        <div key={budget._id} className="bg-white p-4 rounded-lg shadow">
+        <div key={budget._id} className="space-y-2">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-sm font-medium text-gray-700">{budget.category}</h3>
             <span className="text-sm text-gray-500">

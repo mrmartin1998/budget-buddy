@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 
-export default function CategoryBreakdown() {
+export default function CategoryBreakdown({ hideTitle = false }) {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -24,26 +24,28 @@ export default function CategoryBreakdown() {
   };
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Spending by Category</h3>
-      {categories.map((category) => (
-        <div key={category.name} className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-sm font-medium text-gray-600">
-              {category.name}
-            </span>
-            <span className="text-sm font-medium text-gray-900">
-              ${category.total}
-            </span>
+    <div>
+      {!hideTitle && <h2 className="text-xl font-semibold mb-4">Spending by Category</h2>}
+      <div className="space-y-4">
+        {categories.map((category) => (
+          <div key={category.name} className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm font-medium text-gray-600">
+                {category.name}
+              </span>
+              <span className="text-sm font-medium text-gray-900">
+                ${category.total}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full"
+                style={{ width: `${category.percentage}%` }}
+              />
+            </div>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full"
-              style={{ width: `${category.percentage}%` }}
-            />
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
