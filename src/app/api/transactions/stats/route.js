@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
-export async function GET() {
+export async function GET(request) {
   await dbConnect();
   
   const headersList = headers();
@@ -31,7 +31,27 @@ export async function GET() {
   }
 
   try {
-    const transactions = await Transaction.find({ userId });
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const start = searchParams.get('start');
+    const end = searchParams.get('end');
+    const accounts = searchParams.get('accounts');
+
+    // Build query
+    const query = { userId };
+
+    if (start && end) {
+      query.date = {
+        $gte: new Date(start),
+        $lte: new Date(end)
+      };
+    }
+
+    if (accounts) {
+      query.accountId = { $in: accounts.split(',') };
+    }
+
+    const transactions = await Transaction.find(query);
     
     const stats = transactions.reduce((acc, transaction) => {
       const amount = Number(transaction.amount);
@@ -42,8 +62,6 @@ export async function GET() {
       }
       return acc;
     }, { totalIncome: 0, totalExpenses: 0 });
-
-    stats.totalBalance = stats.totalIncome - stats.totalExpenses;
 
     return NextResponse.json(stats);
   } catch (error) {

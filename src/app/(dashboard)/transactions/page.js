@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import TransactionForm from '@/components/transactions/TransactionForm';
 import TransactionList from '@/components/transactions/TransactionList';
-import StatsOverview from '@/components/dashboard/StatsOverview';
-import AccountFilter from '@/components/accounts/AccountFilter';
+import AccountManager from '@/components/accounts/AccountManager';
 import { useAccounts } from '@/contexts/AccountContext';
 
 export default function Transactions() {
@@ -108,24 +107,21 @@ export default function Transactions() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold">Transactions</h1>
       </div>
-      
-      {/*<StatsOverview />*/}
-      
+
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Accounts</h2>
+        <div className="p-4 sm:p-6 rounded-lg">
+          <AccountManager 
+            selectedAccounts={selectedAccounts}
+            onAccountToggle={handleAccountToggle}
+          />
         </div>
-        <AccountFilter 
-          selectedAccounts={selectedAccounts} 
-          onAccountToggle={handleAccountToggle} 
-        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">Add Transaction</h2>
           {error && <p className="text-red-500 mb-4">{error}</p>}
