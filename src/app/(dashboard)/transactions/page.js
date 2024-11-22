@@ -6,6 +6,7 @@ import TransactionForm from '@/components/transactions/TransactionForm';
 import TransactionList from '@/components/transactions/TransactionList';
 import AccountManager from '@/components/accounts/AccountManager';
 import { useAccounts } from '@/contexts/AccountContext';
+import DetailedCashFlow from '@/components/transactions/DetailedCashFlow';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -119,6 +120,10 @@ export default function Transactions() {
             onAccountToggle={handleAccountToggle}
           />
         </div>
+      </div>
+
+      <div className="mb-8">
+        <DetailedCashFlow selectedAccounts={selectedAccounts} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
