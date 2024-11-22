@@ -32,6 +32,7 @@ export const config = {
   matcher: [
     '/dashboard',
     '/transactions',
-    '/api/transactions/:path*'
+    '/api/transactions/:path*',
+    '/api/accounts/:path*'
   ]
 };

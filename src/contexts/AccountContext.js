@@ -59,8 +59,32 @@ export function AccountProvider({ children }) {
     ));
   };
 
-  const deleteAccount = (id) => {
-    setAccounts(accounts.filter(account => account.id !== id));
+  const deleteAccount = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token missing');
+      }
+
+      const res = await fetch(`/api/accounts/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to delete account');
+      }
+
+      setAccounts(prevAccounts => prevAccounts.filter(account => account._id !== id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      throw error;
+    }
   };
 
   const getTotalBalance = () => {

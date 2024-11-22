@@ -11,6 +11,7 @@ export default function AccountManager() {
     type: 'cash',
     balance: '',
   });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,16 +20,32 @@ export default function AccountManager() {
     setNewAccount({ name: '', type: 'cash', balance: '' });
   };
 
+  const handleDelete = async (accountId) => {
+    if (window.confirm('Are you sure you want to delete this account? This action cannot be undone.')) {
+      setIsDeleting(true);
+      try {
+        await deleteAccount(accountId);
+      } catch (error) {
+        console.error('Error deleting account:', error);
+        alert(error.message || 'Failed to delete account. Please try again.');
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Accounts</h2>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-        >
-          Add Account
-        </button>
+        <div className="flex items-center gap-4">
+          <h2 className="text-xl font-semibold">Accounts</h2>
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 text-sm"
+          >
+            + Add Account
+          </button>
+        </div>
       </div>
 
       {showAddForm && (
@@ -86,7 +103,7 @@ export default function AccountManager() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {accounts.map((account) => (
           <div
-            key={account.id}
+            key={account._id}
             className={`bg-white rounded-lg shadow-md p-4 sm:p-6 ${
               account.type === 'cash' ? 'border-l-4 border-green-500' : 'border-l-4 border-blue-500'
             }`}
@@ -95,10 +112,25 @@ export default function AccountManager() {
               <h3 className="text-lg font-medium text-gray-900">{account.name}</h3>
               {!account.isDefault && (
                 <button
-                  onClick={() => deleteAccount(account.id)}
-                  className="text-sm text-red-500 hover:text-red-700"
+                  onClick={() => handleDelete(account._id)}
+                  disabled={isDeleting}
+                  className="flex items-center gap-1 px-2 py-1 text-sm text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
                 >
-                  Delete
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="h-4 w-4" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
+                    />
+                  </svg>
+                  {isDeleting ? 'Deleting...' : 'Delete'}
                 </button>
               )}
             </div>
