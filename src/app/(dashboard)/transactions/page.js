@@ -5,14 +5,25 @@ import { useRouter } from 'next/navigation';
 import TransactionForm from '@/components/transactions/TransactionForm';
 import TransactionList from '@/components/transactions/TransactionList';
 import StatsOverview from '@/components/dashboard/StatsOverview';
+import AccountFilter from '@/components/accounts/AccountFilter';
 import { useAccounts } from '@/contexts/AccountContext';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
+  const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const router = useRouter();
   const { handleTransaction } = useAccounts();
+
+  const handleAccountToggle = (accountId) => {
+    setSelectedAccounts(prev => {
+      if (prev.includes(accountId)) {
+        return prev.filter(id => id !== accountId);
+      }
+      return [...prev, accountId];
+    });
+  };
 
   const fetchTransactions = useCallback(async () => {
     try {
@@ -22,11 +33,25 @@ export default function Transactions() {
         return;
       }
 
-      const res = await fetch('/api/transactions', {
+      let url = '/api/transactions';
+      if (selectedAccounts.length > 0) {
+        const accountParams = selectedAccounts.join(',');
+        url += `?accounts=${accountParams}`;
+      }
+
+      const res = await fetch(url, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
+
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned non-JSON response');
+      }
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -34,10 +59,13 @@ export default function Transactions() {
       }
 
       setTransactions(data.transactions);
+      setError('');
     } catch (error) {
-      setError(error.message);
+      console.error('Error fetching transactions:', error);
+      setError('Failed to load transactions. Please try refreshing the page.');
+      setTransactions([]);
     }
-  }, [router]);
+  }, [router, selectedAccounts]);
 
   useEffect(() => {
     fetchTransactions();
@@ -85,8 +113,18 @@ export default function Transactions() {
         <h1 className="text-2xl sm:text-3xl font-bold">Transactions</h1>
       </div>
       
-      <StatsOverview />
+      {/*<StatsOverview />*/}
       
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Accounts</h2>
+        </div>
+        <AccountFilter 
+          selectedAccounts={selectedAccounts} 
+          onAccountToggle={handleAccountToggle} 
+        />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">Add Transaction</h2>

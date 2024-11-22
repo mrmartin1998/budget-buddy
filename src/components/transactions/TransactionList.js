@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const TransactionList = ({ transactions }) => {
-  // Add loading state if needed
   const [isLoading, setIsLoading] = useState(false);
 
-  // Sort transactions by date (most recent first)
   const sortedTransactions = transactions?.sort((a, b) => 
     new Date(b.date) - new Date(a.date)
   ) || [];
@@ -28,8 +26,13 @@ const TransactionList = ({ transactions }) => {
         >
           <div className="flex justify-between items-center">
             <div>
-              <p className="font-semibold">{transaction.category}</p>
-              <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${
+                  transaction.account?.type === 'cash' ? 'bg-green-500' : 'bg-blue-500'
+                }`} />
+                <p className="font-semibold">{transaction.category}</p>
+              </div>
+              <div className="space-y-1 mt-1">
                 {transaction.description && (
                   <p className="text-sm text-gray-600">
                     {transaction.description}

@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
-export async function GET() {
+export async function GET(request) {
   await dbConnect();
 
   const headersList = headers();
@@ -31,7 +31,20 @@ export async function GET() {
   }
 
   try {
-    const transactions = await Transaction.find({ userId });
+    const { searchParams } = new URL(request.url);
+    const accountsParam = searchParams.get('accounts');
+    
+    let query = { userId };
+    
+    if (accountsParam) {
+      const accountIds = accountsParam.split(',');
+      query.accountId = { $in: accountIds };
+    }
+
+    const transactions = await Transaction.find(query)
+      .populate('accountId', 'name type')
+      .sort({ date: -1 });
+
     return NextResponse.json({ transactions });
   } catch (error) {
     console.error('Error fetching transactions:', error);
