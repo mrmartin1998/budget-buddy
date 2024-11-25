@@ -3,9 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DateRangeFilter from '@/components/common/DateRangeFilter';
+import TransactionForm from './TransactionForm';
+import { useAccounts } from '@/contexts/AccountContext';
 
 export default function DetailedCashFlow({ selectedAccounts = [] }) {
   const router = useRouter();
+  const { handleTransaction } = useAccounts();
+  const [editingTransaction, setEditingTransaction] = useState(null);
   const [startDate, setStartDate] = useState(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1)
       .toISOString()
@@ -72,6 +76,66 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
     new Date(b.date) - new Date(a.date)
   );
 
+  const handleEdit = (transaction) => {
+    setEditingTransaction(transaction);
+  };
+
+  const handleUpdate = async (updatedData) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Include both original and updated data for proper balance calculations
+      const payload = {
+        originalTransaction: {
+          ...editingTransaction,
+          accountId: editingTransaction.accountId?._id || editingTransaction.accountId
+        },
+        updatedTransaction: {
+          ...updatedData,
+          _id: editingTransaction._id
+        }
+      };
+
+      const response = await fetch(`/api/transactions/${editingTransaction._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update transaction');
+      }
+
+      const data = await response.json();
+      
+      // Update local transaction state
+      setTransactions(prevTransactions => 
+        prevTransactions.map(t => 
+          t._id === data.transaction._id ? data.transaction : t
+        )
+      );
+      
+      // Update account state through context
+      handleTransaction(data.transaction);
+      
+      // Clear editing state
+      setEditingTransaction(null);
+      
+      // Refresh all data to ensure consistency
+      fetchData();
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      // TODO: Add error notification
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingTransaction(null);
+  };
+
   return (
     <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md space-y-6">
       <h2 className="text-xl font-semibold">Cash Flow Analysis</h2>
@@ -110,6 +174,24 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
 
       <div className="mt-6">
         <h3 className="text-lg font-medium mb-4">Transaction Details</h3>
+        
+        {editingTransaction && (
+          <div className="mb-4 p-4 border rounded-lg bg-gray-50">
+            <h3 className="text-lg font-medium mb-4">Edit Transaction</h3>
+            <TransactionForm 
+              onSubmit={handleUpdate}
+              initialData={editingTransaction}
+              isEditing={true}
+            />
+            <button
+              onClick={handleCancel}
+              className="mt-2 w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
         <div className="space-y-4">
           {sortedTransactions.length === 0 ? (
             <p className="text-gray-500 text-center py-4">
@@ -151,6 +233,14 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
                     <p className="text-sm text-gray-500">
                       {transaction.accountId?.name || 'Unknown Account'}
                     </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEdit(transaction)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      Edit
+                    </button>
                   </div>
                 </div>
               </div>

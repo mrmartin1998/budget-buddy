@@ -10,6 +10,7 @@ export async function PUT(request, { params }) {
   await dbConnect();
   const { id } = params;
   
+  // Auth validation
   const headersList = headers();
   const authorization = headersList.get('authorization');
   if (!authorization) {
@@ -27,29 +28,43 @@ export async function PUT(request, { params }) {
 
   try {
     const body = await request.json();
-    const { originalTransaction, ...updates } = body;
+    const { originalTransaction, updatedTransaction } = body;
 
-    // Update transaction with improved populate
-    const updatedTransaction = await Transaction.findOneAndUpdate(
+    // 1. Revert original transaction's effect on old account
+    if (originalTransaction.accountId) {
+      await updateAccountBalance(userId, originalTransaction.accountId);
+    }
+
+    // 2. Update the transaction
+    const updatedTx = await Transaction.findOneAndUpdate(
       { _id: id, userId },
-      updates,
-      { new: true }
+      updatedTransaction,
+      { 
+        new: true,
+        runValidators: true 
+      }
     ).populate({
       path: 'accountId',
-      select: 'name type'
+      select: 'name type balance'
     });
 
-    if (!updatedTransaction) {
+    if (!updatedTx) {
       return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
 
-    // Calculate new balance
-    const newBalance = await updateAccountBalance(userId, updatedTransaction.accountId);
-    
+    // 3. Update new account's balance
+    const newBalance = await updateAccountBalance(userId, updatedTx.accountId);
+
+    // 4. If accounts are different, update both
+    if (originalTransaction.accountId !== updatedTx.accountId.toString()) {
+      await updateAccountBalance(userId, originalTransaction.accountId);
+    }
+
     return NextResponse.json({ 
-      transaction: updatedTransaction,
-      balance: newBalance 
+      transaction: updatedTx,
+      balance: newBalance
     });
+
   } catch (error) {
     console.error('Error updating transaction:', error);
     return NextResponse.json(

@@ -1,67 +1,60 @@
-Phase 1: Simplify Data Models
-1. Create Test Environment
-- Set up test database
-- Create sample transactions and accounts
-- Write initial test cases for current functionality
+Phase 1: Transaction Editing Implementation
+1. Manual Testing Setup
+- Use existing database
+- Test with real transactions
+- Document current functionality
 
-2. Simplify Transaction schema
-   graph TD
-       A[Test Steps] --> B[Backup current schema]
-       B --> C[Create new schema]
-       C --> D[Test conversion]
-       D --> E[Verify data integrity]
+2. Transaction Edit Capabilities
+- Amount modification
+- Account transfer functionality
+- Date/category/description updates
+- Type changes (income/expense)
+- Balance recalculation logic
 
-test cases:
-- Verify all transaction types convert correctly
-- Ensure no data loss
-- Test balance calculations with new schema
+3. Account Sync Logic
+- Handle amount changes within accounts
+- Manage cross-account transfers
+- Update totalIncome/totalExpenses
+- Maintain balance integrity
 
-3. Test Balance calculations
-- Verify all transaction types convert correctly
-- Ensure no data loss
-- Test balance calculations with new schema 
-
-Phase 2: Account Management Refactor
-1. Create new balance utility
-test cases:
-- Calculate balance for a single account
-- Handle multiple accounts
+Phase 2: Account Management
+1. Balance Utility Improvements
+Manual Test Cases:
+- Single account balance updates after edits
+- Multiple account handling during transfers
 - Verify transfer calculations
-- Compare results with current system
+- Compare balances before/after edits
 
-2. Integration Testing
-   graph TD
-       A[Test Steps] --> B[Unit Tests]
-       B --> C[Integration Tests]
-       C --> D[UI Tests]
-       D --> E[Performance Tests]
-
-- Test each component individually
-- Test components working together
+2. Manual Integration Testing
+- Test components individually
 - Verify UI updates correctly
+- Validate account sync after edits
+- Check real-time balance updates
 
 Phase 3: Transaction Modification
-1. API Endpoint Testing
+1. Manual API Testing
 Test Cases:
-- Valid modifications
-- Invalid modifications
-- Error handling
-- Balance recalculation
+- Edit amounts and verify account balances
+- Change transaction types (income↔expense)
+- Move transactions between accounts
+- Verify error handling works
 
-2. UI Testing
+2. Manual UI Testing
 Test Cases:
-- Form validation
-- Error messages
-- Success scenarios
-- Balance updates
+- Edit form functionality
+- Error message display
+- Success notifications
+- Balance updates in real-time
+- Account totals sync correctly
 
-Testing Workflow for Each Change
+Testing Workflow
+1. Make changes
+2. Manual testing
+3. Code review
+4. Deploy changes
+5. Final verification
 
-graph TD
-    A[Development] --> B[Unit Tests]
-    B --> C[Integration Tests]
-    C --> D[Manual Testing]
-    D --> E[Code Review]
-    E --> F[Deploy to Test]
-    F --> G[Final Verification]
-
+Rollback Plan
+- Document each test
+- Keep track of account states
+- Ability to reset if needed

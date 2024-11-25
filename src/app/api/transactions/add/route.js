@@ -62,35 +62,19 @@ export async function POST(request) {
         select: 'name type'
       });
 
-    // Update account balance
-    const newBalance = await updateAccountBalance(userId, account._id);
-    if (newBalance === null) {
+    // Update account balance using the utility function
+    const updatedAccount = await updateAccountBalance(userId, account._id);
+    if (!updatedAccount) {
       return NextResponse.json(
         { error: 'Failed to update account balance' },
         { status: 500 }
       );
     }
 
-    // Update account totals
-    const parsedAmount = parseFloat(amount);
-    account.balance = newBalance;
-    account.totalIncome = type === 'income' 
-      ? Number(((account.totalIncome || 0) + parsedAmount).toFixed(2))
-      : account.totalIncome || 0;
-    account.totalExpenses = type === 'expense'
-      ? Number(((account.totalExpenses || 0) + parsedAmount).toFixed(2))
-      : account.totalExpenses || 0;
-
-    await account.save();
-
-    // Return the updated data
     return NextResponse.json(
       { 
         transaction: populatedTransaction,
-        account: {
-          ...account.toObject(),
-          balance: newBalance
-        }
+        account: updatedAccount
       },
       { status: 201 }
     );
