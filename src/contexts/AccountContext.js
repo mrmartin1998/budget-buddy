@@ -97,17 +97,19 @@ export function AccountProvider({ children }) {
     const parsedAmount = Math.abs(parseFloat(amount));
     
     setAccounts(prevAccounts => prevAccounts.map(account => {
-      if (account.id === accountId) {
+      if (account._id === accountId) {
+        const newBalance = type === 'income' 
+          ? (account.balance || 0) + parsedAmount
+          : (account.balance || 0) - parsedAmount;
+          
         return {
           ...account,
-          balance: type === 'income' 
-            ? account.balance + parsedAmount
-            : account.balance - parsedAmount,
+          balance: Number(newBalance.toFixed(2)),
           totalIncome: type === 'income'
-            ? (account.totalIncome || 0) + parsedAmount
+            ? Number(((account.totalIncome || 0) + parsedAmount).toFixed(2))
             : (account.totalIncome || 0),
           totalExpenses: type === 'expense'
-            ? (account.totalExpenses || 0) + parsedAmount
+            ? Number(((account.totalExpenses || 0) + parsedAmount).toFixed(2))
             : (account.totalExpenses || 0)
         };
       }

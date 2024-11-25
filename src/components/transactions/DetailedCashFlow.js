@@ -125,7 +125,7 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
                   <div>
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${
-                        transaction.account?.type === 'cash' ? 'bg-green-500' : 'bg-blue-500'
+                        transaction.accountId?.type === 'cash' ? 'bg-green-500' : 'bg-blue-500'
                       }`} />
                       <p className="font-semibold">{transaction.category}</p>
                     </div>
@@ -149,7 +149,7 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
                       {transaction.type === 'income' ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {transaction.account?.name || 'Unknown Account'}
+                      {transaction.accountId?.name || 'Unknown Account'}
                     </p>
                   </div>
                 </div>

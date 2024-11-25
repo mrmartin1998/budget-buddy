@@ -1,12 +1,13 @@
 import { dbConnect } from '@/lib/db/connect';
+import Account from '@/lib/db/models/Account';
 import Transaction from '@/lib/db/models/Transaction';
 import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
-export async function GET(request) {
+export async function POST() {
   await dbConnect();
-
+  
   const headersList = headers();
   const authorization = headersList.get('authorization');
 
@@ -25,34 +26,28 @@ export async function GET(request) {
     userId = decoded.userId;
   } catch (error) {
     return NextResponse.json(
-      { error: 'Invalid or expired token' },
+      { error: 'Invalid token' },
       { status: 401 }
     );
   }
 
   try {
-    const { searchParams } = new URL(request.url);
-    const accountsParam = searchParams.get('accounts');
+    // Get all accounts for the user
+    const accounts = await Account.find({ userId });
     
-    let query = { userId };
-    
-    if (accountsParam) {
-      const accountIds = accountsParam.split(',');
-      query.accountId = { $in: accountIds };
+    // Reset and recalculate each account
+    for (const account of accounts) {
+      await recalculateAccountBalance(account._id);
     }
 
-    const transactions = await Transaction.find(query)
-      .populate({
-        path: 'accountId',
-        select: 'name type'
-      })
-      .sort({ date: -1 });
-
-    return NextResponse.json({ transactions });
+    return NextResponse.json({ 
+      message: 'Account balances reset successfully',
+      success: true
+    });
   } catch (error) {
-    console.error('Error fetching transactions:', error);
+    console.error('Error resetting account balances:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to reset account balances' },
       { status: 500 }
     );
   }

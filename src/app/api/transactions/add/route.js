@@ -4,6 +4,7 @@ import Account from '@/lib/db/models/Account';
 import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { updateAccountBalance } from '@/lib/utils/accountUtils';
 
 export async function POST(request) {
   await dbConnect();
@@ -34,7 +35,8 @@ export async function POST(request) {
     const body = await request.json();
     const { amount, type, category, date, accountId, description } = body;
 
-    const account = await Account.findById(accountId);
+    // Validate the account exists and belongs to user
+    const account = await Account.findOne({ _id: accountId, userId });
     if (!account) {
       return NextResponse.json(
         { error: 'Account not found' },
@@ -42,6 +44,7 @@ export async function POST(request) {
       );
     }
 
+    // Create and save the transaction
     const newTransaction = new Transaction({
       userId,
       amount: parseFloat(amount),
@@ -49,32 +52,45 @@ export async function POST(request) {
       category,
       date: new Date(date),
       accountId: account._id,
-      account: {
-        id: account._id.toString(),
-        name: account.name,
-        type: account.type
-      },
       description
     });
     
-    await newTransaction.save();
+    const savedTransaction = await newTransaction.save();
+    const populatedTransaction = await Transaction.findById(savedTransaction._id)
+      .populate({
+        path: 'accountId',
+        select: 'name type'
+      });
 
-    const parsedAmount = parseFloat(amount);
-    const balanceChange = type === 'income' ? parsedAmount : -parsedAmount;
-    
-    account.balance += balanceChange;
-    if (type === 'income') {
-      account.totalIncome = (account.totalIncome || 0) + parsedAmount;
-    } else {
-      account.totalExpenses = (account.totalExpenses || 0) + parsedAmount;
+    // Update account balance
+    const newBalance = await updateAccountBalance(userId, account._id);
+    if (newBalance === null) {
+      return NextResponse.json(
+        { error: 'Failed to update account balance' },
+        { status: 500 }
+      );
     }
-    
+
+    // Update account totals
+    const parsedAmount = parseFloat(amount);
+    account.balance = newBalance;
+    account.totalIncome = type === 'income' 
+      ? Number(((account.totalIncome || 0) + parsedAmount).toFixed(2))
+      : account.totalIncome || 0;
+    account.totalExpenses = type === 'expense'
+      ? Number(((account.totalExpenses || 0) + parsedAmount).toFixed(2))
+      : account.totalExpenses || 0;
+
     await account.save();
 
+    // Return the updated data
     return NextResponse.json(
       { 
-        transaction: newTransaction,
-        account: account 
+        transaction: populatedTransaction,
+        account: {
+          ...account.toObject(),
+          balance: newBalance
+        }
       },
       { status: 201 }
     );

@@ -50,7 +50,10 @@ export async function GET(request) {
     }
 
     const transactions = await Transaction.find(query)
-      .populate('accountId', 'name type')
+      .populate({
+        path: 'accountId',
+        select: 'name type'
+      })
       .sort({ date: -1 });
 
     const stats = transactions.reduce((acc, transaction) => {

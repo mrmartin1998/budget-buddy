@@ -7,12 +7,7 @@ const TransactionSchema = new mongoose.Schema({
   category: { type: String, required: true },
   description: String,
   date: { type: Date, default: Date.now },
-  accountId: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true },
-  account: {
-    id: { type: String, required: true },
-    name: { type: String, required: true },
-    type: { type: String, required: true }
-  }
+  accountId: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true }
 }, { timestamps: true });
 
 export default mongoose.models.Transaction || mongoose.model('Transaction', TransactionSchema);
