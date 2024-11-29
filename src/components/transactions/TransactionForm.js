@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useAccounts } from '@/contexts/AccountContext';
+import { useToast } from '@/contexts/ToastContext';
 
 export default function TransactionForm({ onSubmit, initialData = null, isEditing = false }) {
   const { accounts } = useAccounts();
+  const { addToast } = useToast();
   const [formData, setFormData] = useState({
     type: 'expense',
     amount: '',
@@ -30,28 +32,35 @@ export default function TransactionForm({ onSubmit, initialData = null, isEditin
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    try {
-      const submissionData = {
-        ...formData,
-        amount: parseFloat(formData.amount)
-      };
-      
-      const response = await onSubmit(submissionData);
+    if (!formData.amount || !formData.category || !formData.accountId) {
+      addToast('Please fill in all required fields', 'error');
+      return;
+    }
 
-      if (response.ok) {
-        if (!isEditing) {
-          setFormData({
-            type: 'expense',
-            amount: '',
-            category: '',
-            date: new Date().toISOString().split('T')[0],
-            accountId: '',
-            description: ''
-          });
-        }
+    try {
+      await onSubmit(formData);
+      
+      if (!isEditing) {
+        setFormData({
+          type: 'expense',
+          amount: '',
+          category: '',
+          description: '',
+          date: new Date().toISOString().split('T')[0],
+          accountId: ''
+        });
       }
+      
+      addToast(
+        isEditing ? 'Transaction updated successfully' : 'Transaction added successfully',
+        'success'
+      );
     } catch (error) {
-      console.error('Error submitting transaction:', error);
+      console.error('Transaction form error:', error);
+      addToast(
+        error.message || 'Failed to process transaction',
+        'error'
+      );
     }
   };
 

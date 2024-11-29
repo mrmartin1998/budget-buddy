@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import DateRangeFilter from '@/components/common/DateRangeFilter';
 import TransactionForm from './TransactionForm';
 import { useAccounts } from '@/contexts/AccountContext';
+import { useToast } from '@/contexts/ToastContext';
 
 export default function DetailedCashFlow({ selectedAccounts = [] }) {
   const router = useRouter();
   const { handleTransaction } = useAccounts();
+  const { addToast } = useToast();
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [startDate, setStartDate] = useState(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1)
@@ -31,6 +33,7 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
+        addToast('Please login to continue', 'error');
         router.push('/login');
         return;
       }
@@ -59,12 +62,7 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
       setTransactions(data.transactions || []);
     } catch (error) {
       console.error('Error fetching data:', error);
-      setStats({
-        income: 0,
-        expenses: 0,
-        netFlow: 0
-      });
-      setTransactions([]);
+      addToast('Failed to fetch transaction data', 'error');
     }
   };
 
@@ -126,14 +124,50 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
       
       // Refresh all data to ensure consistency
       fetchData();
+      
+      addToast('Transaction updated successfully', 'success');
     } catch (error) {
       console.error('Error updating transaction:', error);
-      // TODO: Add error notification
+      addToast(error.message || 'Failed to update transaction', 'error');
     }
   };
 
   const handleCancel = () => {
     setEditingTransaction(null);
+  };
+
+  const handleDelete = async (transactionId) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`/api/transactions/${transactionId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete transaction');
+      }
+
+      const data = await response.json();
+      
+      // Update local transaction state
+      setTransactions(prevTransactions => 
+        prevTransactions.filter(t => 
+          t._id !== data.transaction._id
+        )
+      );
+      
+      // Update account state through context
+      handleTransaction(data.transaction);
+      
+      addToast('Transaction deleted successfully', 'success');
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      addToast('Failed to delete transaction', 'error');
+    }
   };
 
   return (
@@ -240,6 +274,12 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
                       className="text-blue-600 hover:text-blue-800"
                     >
                       Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(transaction._id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Delete
                     </button>
                   </div>
                 </div>

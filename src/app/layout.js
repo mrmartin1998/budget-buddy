@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { AlertProvider } from '@/components/providers/AlertProvider';
 import { AccountProvider } from '@/contexts/AccountContext';
+import ToastWrapper from '@/components/providers/ToastWrapper';
 import Navbar from '@/components/layout/Navbar';
 import AlertBadge from '@/components/alerts/AlertBadge';
 
@@ -30,13 +31,15 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <AlertProvider>
             <AccountProvider>
-              <div className="min-h-screen bg-gray-50">
-                <Navbar />
-                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                  {children}
-                </main>
-                <AlertBadge />
-              </div>
+              <ToastWrapper>
+                <div className="min-h-screen bg-gray-50">
+                  <Navbar />
+                  <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    {children}
+                  </main>
+                  <AlertBadge />
+                </div>
+              </ToastWrapper>
             </AccountProvider>
           </AlertProvider>
         </AuthProvider>

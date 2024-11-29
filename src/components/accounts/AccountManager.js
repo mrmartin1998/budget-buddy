@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { useAccounts } from '@/contexts/AccountContext';
+import { useToast } from '@/contexts/ToastContext';
 import AccountCard from './AccountCard';
 
 export default function AccountManager({ selectedAccounts = [], onAccountToggle }) {
-  const { accounts, addAccount, deleteAccount } = useAccounts();
+  const { accounts, addAccount, updateAccount, deleteAccount } = useAccounts();
+  const { addToast } = useToast();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newAccount, setNewAccount] = useState({
     name: '',
@@ -14,11 +16,26 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
   });
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addAccount(newAccount);
-    setShowAddForm(false);
-    setNewAccount({ name: '', type: 'cash', balance: '' });
+    try {
+      if (!newAccount.name || !newAccount.balance) {
+        addToast('Please fill in all required fields', 'error');
+        return;
+      }
+
+      await addAccount({
+        ...newAccount,
+        balance: parseFloat(newAccount.balance)
+      });
+
+      setNewAccount({ name: '', type: 'cash', balance: '' });
+      setShowAddForm(false);
+      addToast('Account added successfully', 'success');
+    } catch (error) {
+      console.error('Error adding account:', error);
+      addToast(error.message || 'Failed to add account', 'error');
+    }
   };
 
   const handleDelete = async (accountId) => {
@@ -26,12 +43,23 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
       setIsDeleting(true);
       try {
         await deleteAccount(accountId);
+        addToast('Account deleted successfully', 'success');
       } catch (error) {
         console.error('Error deleting account:', error);
-        alert(error.message || 'Failed to delete account. Please try again.');
+        addToast('Failed to delete account', 'error');
       } finally {
         setIsDeleting(false);
       }
+    }
+  };
+
+  const handleUpdate = async (accountId, updatedData) => {
+    try {
+      await updateAccount(accountId, updatedData);
+      addToast('Account updated successfully', 'success');
+    } catch (error) {
+      console.error('Error updating account:', error);
+      addToast('Failed to update account', 'error');
     }
   };
 
