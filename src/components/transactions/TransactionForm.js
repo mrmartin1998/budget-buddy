@@ -15,6 +15,7 @@ export default function TransactionForm({ onSubmit, initialData = null, isEditin
     accountId: '',
     description: ''
   });
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     if (initialData && isEditing) {
@@ -28,6 +29,25 @@ export default function TransactionForm({ onSubmit, initialData = null, isEditin
       });
     }
   }, [initialData, isEditing]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/categories', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      setCategories(data.categories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -124,14 +144,27 @@ export default function TransactionForm({ onSubmit, initialData = null, isEditin
 
       <div>
         <label className="block text-sm font-medium text-gray-700">Category</label>
-        <input
-          type="text"
+        <select
           name="category"
           value={formData.category}
           onChange={handleChange}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           required
-        />
+        >
+          <option value="">Select a category</option>
+          {categories
+            .filter(cat => cat.type === formData.type)
+            .map(cat => (
+              <option 
+                key={cat._id} 
+                value={cat.name}
+                className="flex items-center py-2 px-4"
+              >
+                {cat.name}
+              </option>
+            ))
+          }
+        </select>
       </div>
 
       <div>
