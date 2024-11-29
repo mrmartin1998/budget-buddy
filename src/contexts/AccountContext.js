@@ -91,30 +91,29 @@ export function AccountProvider({ children }) {
     return accounts.reduce((total, account) => total + account.balance, 0);
   };
 
-  // Update handleTransaction to include account information
-  const handleTransaction = (transaction) => {
+  const handleTransaction = async (transaction) => {
     const { accountId, type, amount } = transaction;
-    const parsedAmount = Math.abs(parseFloat(amount));
     
-    setAccounts(prevAccounts => prevAccounts.map(account => {
-      if (account._id === accountId) {
-        const newBalance = type === 'income' 
-          ? (account.balance || 0) + parsedAmount
-          : (account.balance || 0) - parsedAmount;
-          
-        return {
-          ...account,
-          balance: Number(newBalance.toFixed(2)),
-          totalIncome: type === 'income'
-            ? Number(((account.totalIncome || 0) + parsedAmount).toFixed(2))
-            : (account.totalIncome || 0),
-          totalExpenses: type === 'expense'
-            ? Number(((account.totalExpenses || 0) + parsedAmount).toFixed(2))
-            : (account.totalExpenses || 0)
-        };
+    try {
+      // Fetch fresh account data after transaction
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/accounts', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch updated accounts');
       }
-      return account;
-    }));
+
+      const { accounts: updatedAccounts } = await response.json();
+      setAccounts(updatedAccounts);
+      
+    } catch (error) {
+      console.error('Error updating accounts:', error);
+    }
   };
 
   return (

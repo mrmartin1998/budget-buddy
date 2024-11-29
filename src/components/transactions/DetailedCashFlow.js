@@ -7,7 +7,7 @@ import TransactionForm from './TransactionForm';
 import { useAccounts } from '@/contexts/AccountContext';
 import { useToast } from '@/contexts/ToastContext';
 
-export default function DetailedCashFlow({ selectedAccounts = [] }) {
+export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger = 0 }) {
   const router = useRouter();
   const { handleTransaction } = useAccounts();
   const { addToast } = useToast();
@@ -47,6 +47,8 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        cache: 'no-store',
+        next: { revalidate: 0 }
       });
       
       if (!res.ok) {
@@ -68,7 +70,7 @@ export default function DetailedCashFlow({ selectedAccounts = [] }) {
 
   useEffect(() => {
     fetchData();
-  }, [startDate, endDate, selectedAccounts]);
+  }, [startDate, endDate, selectedAccounts, refreshTrigger]);
 
   const sortedTransactions = transactions.sort((a, b) => 
     new Date(b.date) - new Date(a.date)

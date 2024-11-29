@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DateRangeFilter from '@/components/common/DateRangeFilter';
 
-export default function EnhancedCashFlow({ selectedAccounts = [] }) {
+export default function EnhancedCashFlow({ selectedAccounts = [], refreshTrigger = 0 }) {
   const router = useRouter();
   const [startDate, setStartDate] = useState(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1)
@@ -39,6 +39,7 @@ export default function EnhancedCashFlow({ selectedAccounts = [] }) {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        cache: 'no-store'
       });
       
       if (!res.ok) {
@@ -63,7 +64,7 @@ export default function EnhancedCashFlow({ selectedAccounts = [] }) {
 
   useEffect(() => {
     fetchData();
-  }, [startDate, endDate, selectedAccounts]);
+  }, [startDate, endDate, selectedAccounts, refreshTrigger]);
 
   return (
     <div className="space-y-6">

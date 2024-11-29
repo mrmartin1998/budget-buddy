@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import TransactionForm from '@/components/transactions/TransactionForm';
 import AccountManager from '@/components/accounts/AccountManager';
@@ -8,8 +8,8 @@ import { useAccounts } from '@/contexts/AccountContext';
 import DetailedCashFlow from '@/components/transactions/DetailedCashFlow';
 
 export default function Transactions() {
-  const [transactions, setTransactions] = useState([]);
   const [selectedAccounts, setSelectedAccounts] = useState([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const router = useRouter();
   const { handleTransaction } = useAccounts();
 
@@ -47,9 +47,9 @@ export default function Transactions() {
       }
 
       handleTransaction(data.transaction);
-      setTransactions((prev) => [...prev, data.transaction]);
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
-      throw error; // Let TransactionForm handle the error toast
+      throw error;
     }
   };
 
@@ -58,9 +58,10 @@ export default function Transactions() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold">Transactions</h1>
       </div>
+      
 
       <div className="mb-8">
-        <div className="p-4 sm:p-6 rounded-lg">
+        <div className="p-4 sm:p-6 rounded-lg  ">
           <AccountManager 
             selectedAccounts={selectedAccounts}
             onAccountToggle={handleAccountToggle}
@@ -69,7 +70,16 @@ export default function Transactions() {
       </div>
 
       <div className="mb-8">
-        <DetailedCashFlow selectedAccounts={selectedAccounts} />
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Add Transaction</h2>
+        <TransactionForm onSubmit={handleAddTransaction} />
+      </div>
+      </div>
+      <div className="mb-8">
+        <DetailedCashFlow 
+          selectedAccounts={selectedAccounts}
+          refreshTrigger={refreshTrigger}
+        />
       </div>
 
       <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
