@@ -20,8 +20,14 @@ export function AuthProvider({ children }) {
     }
   }, [pathname, router]);
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    router.push('/login');
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
+    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, logout }}>
       {children}
     </AuthContext.Provider>
   );
