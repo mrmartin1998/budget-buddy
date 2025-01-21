@@ -1,5 +1,6 @@
 import { dbConnect } from '@/lib/db/connect';
 import Account from '@/lib/db/models/Account';
+import Transaction from '@/lib/db/models/Transaction';
 import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
@@ -38,9 +39,24 @@ export async function POST(request) {
       userId,
       name,
       type,
-      balance: parseFloat(balance)
+      balance: 0
     });
     
+    await newAccount.save();
+
+    const initialTransaction = new Transaction({
+      userId,
+      type: balance >= 0 ? 'income' : 'expense',
+      amount: Math.abs(balance),
+      category: 'Initial Balance',
+      description: 'Initial account balance',
+      accountId: newAccount._id,
+      date: new Date()
+    });
+
+    await initialTransaction.save();
+
+    newAccount.balance = parseFloat(balance);
     await newAccount.save();
 
     return NextResponse.json(
