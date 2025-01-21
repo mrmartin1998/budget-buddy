@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const publicPaths = ['/login', '/signup'];
+    const publicPaths = ['/', '/login', '/signup'];
     
     if (!token && !publicPaths.includes(pathname)) {
       router.push('/login');

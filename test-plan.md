@@ -51,7 +51,7 @@ Issues:
 Issues:
   - Need to more features for accounts:
     - Can add account but Need to make a manage account, like changing the name, color, etc.
-    - Need more account types, currently only cash and bank. 
+    - Need more account types, currently only cash and bank.
     - No way to exit the form (create account) when you start it. 
 
 ## 3. Account Management Testing
