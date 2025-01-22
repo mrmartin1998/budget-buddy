@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAccounts } from '@/contexts/AccountContext';
 import { useToast } from '@/contexts/ToastContext';
 import AccountCard from './AccountCard';
+import { ACCOUNT_COLORS } from '@/lib/constants/colors';
 
 export default function AccountManager({ selectedAccounts = [], onAccountToggle }) {
   const { accounts, addAccount, updateAccount, deleteAccount } = useAccounts();
@@ -13,6 +14,7 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
     name: '',
     type: 'cash',
     balance: '',
+    color: '#3B82F6',
   });
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -29,7 +31,7 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
         balance: parseFloat(newAccount.balance)
       });
 
-      setNewAccount({ name: '', type: 'cash', balance: '' });
+      setNewAccount({ name: '', type: 'cash', balance: '', color: '#3B82F6' });
       setShowAddForm(false);
       addToast('Account added successfully', 'success');
     } catch (error) {
@@ -64,7 +66,7 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
   };
 
   const handleCancel = () => {
-    setNewAccount({ name: '', type: 'cash', balance: '' });
+    setNewAccount({ name: '', type: 'cash', balance: '', color: '#3B82F6' });
     setShowAddForm(false);
   };
 
@@ -130,6 +132,28 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
               <option value="cash">Cash</option>
               <option value="bank">Bank Account</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Account Color
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {ACCOUNT_COLORS.map((color) => (
+                <div
+                  key={color.id}
+                  className={`flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-50
+                    ${newAccount.color === color.value ? 'ring-2 ring-blue-500' : ''}`}
+                  onClick={() => setNewAccount({ ...newAccount, color: color.value })}
+                >
+                  <div
+                    className="w-6 h-6 rounded-full"
+                    style={{ backgroundColor: color.value }}
+                  />
+                  <span className="text-sm">{color.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div>

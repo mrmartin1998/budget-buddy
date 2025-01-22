@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useAccounts } from '@/contexts/AccountContext';
 import { useToast } from '@/contexts/ToastContext';
+import { ACCOUNT_COLORS } from '@/lib/constants/colors';
 
 export default function EditAccountModal({ account, onClose }) {
   const { updateAccount } = useAccounts();
@@ -9,6 +10,7 @@ export default function EditAccountModal({ account, onClose }) {
   const [formData, setFormData] = useState({
     name: account.name,
     type: account.type,
+    color: account.color || '#3B82F6',
   });
 
   const handleSubmit = async (e) => {
@@ -74,6 +76,28 @@ export default function EditAccountModal({ account, onClose }) {
               <option value="cash">Cash</option>
               <option value="bank">Bank Account</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Account Color
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {ACCOUNT_COLORS.map((color) => (
+                <div
+                  key={color.id}
+                  className={`flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-50
+                    ${formData.color === color.value ? 'ring-2 ring-blue-500' : ''}`}
+                  onClick={() => setFormData({ ...formData, color: color.value })}
+                >
+                  <div
+                    className="w-6 h-6 rounded-full"
+                    style={{ backgroundColor: color.value }}
+                  />
+                  <span className="text-sm">{color.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex gap-4 pt-4">

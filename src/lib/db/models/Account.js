@@ -6,7 +6,11 @@ const AccountSchema = new mongoose.Schema({
   type: { type: String, required: true },
   balance: { type: Number, default: 0 },
   totalIncome: { type: Number, default: 0 },
-  totalExpenses: { type: Number, default: 0 }
+  totalExpenses: { type: Number, default: 0 },
+  color: {
+    type: String,
+    default: '#3B82F6', // Default blue color
+  },
 }, { 
   timestamps: true,
   toJSON: { getters: true },

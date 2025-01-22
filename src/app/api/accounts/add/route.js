@@ -33,31 +33,29 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    const { name, type, balance } = body;
+    const { name, type, balance, color } = body;
 
     const newAccount = new Account({
       userId,
       name,
       type,
-      balance: 0
+      balance: parseFloat(balance),
+      color: color || '#3B82F6',
     });
     
     await newAccount.save();
 
-    const initialTransaction = new Transaction({
-      userId,
-      type: balance >= 0 ? 'income' : 'expense',
-      amount: Math.abs(balance),
-      category: 'Initial Balance',
-      description: 'Initial account balance',
-      accountId: newAccount._id,
-      date: new Date()
-    });
-
-    await initialTransaction.save();
-
-    newAccount.balance = parseFloat(balance);
-    await newAccount.save();
+    if (parseFloat(balance) > 0) {
+      const transaction = new Transaction({
+        userId,
+        accountId: newAccount._id,
+        type: 'income',
+        category: 'Initial Balance',
+        amount: parseFloat(balance),
+        date: new Date(),
+      });
+      await transaction.save();
+    }
 
     return NextResponse.json(
       { account: newAccount },

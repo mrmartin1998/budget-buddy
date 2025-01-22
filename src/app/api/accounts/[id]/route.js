@@ -70,3 +70,63 @@ export async function DELETE(request, { params }) {
     );
   }
 }
+
+export async function PUT(request, { params }) {
+  await dbConnect();
+  
+  const headersList = headers();
+  const authorization = headersList.get('authorization');
+
+  if (!authorization) {
+    return NextResponse.json(
+      { error: 'Authorization header missing' },
+      { status: 401 }
+    );
+  }
+
+  const token = authorization.split(' ')[1];
+  let userId;
+  
+  try {
+    const decoded = verifyToken(token);
+    userId = decoded.userId;
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Invalid or expired token' },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const accountId = params.id;
+    const updates = await request.json();
+    
+    if (!accountId || !mongoose.Types.ObjectId.isValid(accountId)) {
+      return NextResponse.json(
+        { error: 'Invalid account ID' },
+        { status: 400 }
+      );
+    }
+
+    const account = await Account.findOneAndUpdate(
+      { _id: accountId, userId },
+      { $set: updates },
+      { new: true }
+    );
+    
+    if (!account) {
+      return NextResponse.json(
+        { error: 'Account not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(account);
+  } catch (error) {
+    console.error('Error updating account:', error);
+    return NextResponse.json(
+      { error: 'Failed to update account' },
+      { status: 500 }
+    );
+  }
+}

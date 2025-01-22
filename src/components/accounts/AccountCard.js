@@ -21,10 +21,11 @@ export default function AccountCard({
     <>
       <div 
         onClick={isSelectable ? onClick : undefined}
-        className={`relative bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow border-2 
+        className={`relative bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow 
           ${isSelectable ? 'cursor-pointer' : ''} 
-          ${isSelected ? 'border-blue-500' : 'border-transparent'}
-          ${account.type === 'cash' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-blue-500'}`}
+          ${isSelected ? 'ring-2 ring-blue-500' : ''}
+          border-l-4`}
+        style={{ borderLeftColor: account.color || '#3B82F6' }}
       >
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-medium text-gray-900">{account.name}</h3>
