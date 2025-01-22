@@ -131,6 +131,12 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
             >
               <option value="cash">Cash</option>
               <option value="bank">Bank Account</option>
+              <option value="credit">Credit Card</option>
+              <option value="savings">Savings Account</option>
+              <option value="investment">Investment Account</option>
+              <option value="crypto">Cryptocurrency</option>
+              <option value="loan">Loan</option>
+              <option value="other">Other</option>
             </select>
           </div>
 
