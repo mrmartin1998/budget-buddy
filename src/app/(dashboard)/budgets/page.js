@@ -7,6 +7,10 @@ import CategoryBreakdown from '@/components/dashboard/CategoryBreakdown';
 export default function BudgetsPage() {
   const [showForm, setShowForm] = useState(false);
 
+  const handleCloseForm = () => {
+    setShowForm(false);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       <div className="flex justify-between items-center mb-6">
@@ -20,9 +24,9 @@ export default function BudgetsPage() {
       </div>
 
       {showForm && (
-        <div className="mb-6 bg-white p-4 sm:p-6 rounded-lg shadow-md">
+        <div className="mb-6 bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">Set Budget</h2>
-          <BudgetForm />
+          <BudgetForm onClose={handleCloseForm} />
         </div>
       )}
 

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useAlerts } from '@/components/providers/AlertProvider';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '@/lib/constants/categories';
 
-export default function BudgetForm() {
+export default function BudgetForm({ onClose }) {
   const [type, setType] = useState('expense');
   const [category, setCategory] = useState('');
   const [limit, setLimit] = useState('');
@@ -46,6 +46,13 @@ export default function BudgetForm() {
         message: error.message,
       });
     }
+  };
+
+  const handleCancel = () => {
+    setType('expense');
+    setCategory('');
+    setLimit('');
+    onClose();
   };
 
   return (
