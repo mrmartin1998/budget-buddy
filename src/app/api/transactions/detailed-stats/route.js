@@ -37,6 +37,7 @@ export async function GET(request) {
     const accounts = searchParams.get('accounts')?.split(',') || [];
     const minAmount = searchParams.get('minAmount');
     const maxAmount = searchParams.get('maxAmount');
+    const categories = searchParams.get('categories')?.split(',') || [];
 
     // Build query object
     const query = {
@@ -72,6 +73,11 @@ export async function GET(request) {
           }
         }
       ];
+    }
+
+    // Add category filter if categories are specified
+    if (categories.length > 0) {
+      query.category = { $in: categories };
     }
 
     // Fetch transactions with the built query

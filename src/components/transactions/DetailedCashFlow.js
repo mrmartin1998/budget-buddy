@@ -7,6 +7,7 @@ import TransactionForm from './TransactionForm';
 import { useAccounts } from '@/contexts/AccountContext';
 import { useToast } from '@/contexts/ToastContext';
 import AmountRangeFilter from './AmountRangeFilter';
+import CategoryFilter from './CategoryFilter';
 
 export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger = 0 }) {
   const router = useRouter();
@@ -30,6 +31,7 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
   });
   const [transactions, setTransactions] = useState([]);
   const [amountFilter, setAmountFilter] = useState({ min: null, max: null });
+  const [categoryFilter, setCategoryFilter] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -49,6 +51,9 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
       }
       if (amountFilter.max !== null) {
         url += `&maxAmount=${amountFilter.max}`;
+      }
+      if (categoryFilter.length > 0) {
+        url += `&categories=${categoryFilter.join(',')}`;
       }
 
       const res = await fetch(url, {
@@ -78,7 +83,7 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
 
   useEffect(() => {
     fetchData();
-  }, [startDate, endDate, selectedAccounts, refreshTrigger]);
+  }, [startDate, endDate, selectedAccounts, refreshTrigger, amountFilter, categoryFilter]);
 
   const sortedTransactions = transactions.sort((a, b) => 
     new Date(b.date) - new Date(a.date)
@@ -195,6 +200,11 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
           onAmountChange={(amounts) => {
             setAmountFilter(amounts);
             fetchData();
+          }}
+        />
+        <CategoryFilter
+          onCategoryChange={(categories) => {
+            setCategoryFilter(categories);
           }}
         />
       </div>
