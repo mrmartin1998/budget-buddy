@@ -6,6 +6,7 @@ import DateRangeFilter from '@/components/common/DateRangeFilter';
 import TransactionForm from './TransactionForm';
 import { useAccounts } from '@/contexts/AccountContext';
 import { useToast } from '@/contexts/ToastContext';
+import AmountRangeFilter from './AmountRangeFilter';
 
 export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger = 0 }) {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
     netFlow: 0
   });
   const [transactions, setTransactions] = useState([]);
+  const [amountFilter, setAmountFilter] = useState({ min: null, max: null });
 
   const fetchData = async () => {
     try {
@@ -41,6 +43,12 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
       let url = `/api/transactions/detailed-stats?start=${startDate}&end=${endDate}`;
       if (selectedAccounts.length > 0) {
         url += `&accounts=${selectedAccounts.join(',')}`;
+      }
+      if (amountFilter.min !== null) {
+        url += `&minAmount=${amountFilter.min}`;
+      }
+      if (amountFilter.max !== null) {
+        url += `&maxAmount=${amountFilter.max}`;
       }
 
       const res = await fetch(url, {
@@ -176,12 +184,20 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
     <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md space-y-6">
       <h2 className="text-xl font-semibold">Cash Flow Analysis</h2>
       
-      <DateRangeFilter
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <DateRangeFilter
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+        />
+        <AmountRangeFilter
+          onAmountChange={(amounts) => {
+            setAmountFilter(amounts);
+            fetchData();
+          }}
+        />
+      </div>
 
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 bg-gray-50 rounded-lg">

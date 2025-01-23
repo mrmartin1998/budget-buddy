@@ -5,108 +5,99 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
 export async function GET(request) {
+  await dbConnect();
+  
+  const headersList = headers();
+  const authorization = headersList.get('authorization');
+
+  if (!authorization) {
+    return NextResponse.json(
+      { error: 'Authorization header missing' },
+      { status: 401 }
+    );
+  }
+
+  const token = authorization.split(' ')[1];
+  let userId;
+  
   try {
-    console.log('Detailed stats API: Starting connection to database...');
-    await dbConnect();
-    
-    const headersList = headers();
-    const authorization = headersList.get('authorization');
+    const decoded = verifyToken(token);
+    userId = decoded.userId;
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Invalid or expired token' },
+      { status: 401 }
+    );
+  }
 
-    if (!authorization) {
-      console.log('Detailed stats API: Missing authorization header');
-      return NextResponse.json(
-        { error: 'Authorization header missing' },
-        { status: 401 }
-      );
-    }
-
-    const token = authorization.split(' ')[1];
-    let userId;
-    
-    try {
-      const decoded = verifyToken(token);
-      userId = decoded.userId;
-      console.log('Detailed stats API: Authenticated user ID:', userId);
-    } catch (error) {
-      console.error('Detailed stats API: Token verification failed:', error);
-      return NextResponse.json(
-        { error: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
-
+  try {
     const { searchParams } = new URL(request.url);
-    const startDate = searchParams.get('start');
-    const endDate = searchParams.get('end');
-    const accountsParam = searchParams.get('accounts');
+    const start = searchParams.get('start');
+    const end = searchParams.get('end');
+    const accounts = searchParams.get('accounts')?.split(',') || [];
+    const minAmount = searchParams.get('minAmount');
+    const maxAmount = searchParams.get('maxAmount');
 
-    console.log('Detailed stats API: Query parameters:', {
-      startDate,
-      endDate,
-      accountsParam
-    });
-
-    // Validate date parameters
-    if (!startDate || !endDate) {
-      return NextResponse.json(
-        { error: 'Start and end dates are required' },
-        { status: 400 }
-      );
-    }
-
-    let query = {
+    // Build query object
+    const query = {
       userId,
       date: {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate)
+        $gte: new Date(start),
+        $lte: new Date(end)
       }
     };
 
-    if (accountsParam) {
-      const accountIds = accountsParam.split(',');
-      query.accountId = { $in: accountIds };
+    // Add account filter if accounts are specified
+    if (accounts.length > 0) {
+      query.accountId = { $in: accounts };
     }
 
-    console.log('Detailed stats API: Executing query:', JSON.stringify(query));
+    // Add amount filters if specified
+    if (minAmount !== null || maxAmount !== null) {
+      query.$or = [
+        // For income transactions (positive amounts)
+        {
+          type: 'income',
+          amount: {
+            ...(minAmount !== null && { $gte: parseFloat(minAmount) }),
+            ...(maxAmount !== null && { $lte: parseFloat(maxAmount) })
+          }
+        },
+        // For expense transactions (check absolute value)
+        {
+          type: 'expense',
+          amount: {
+            ...(minAmount !== null && { $lte: -parseFloat(minAmount) }),
+            ...(maxAmount !== null && { $gte: -parseFloat(maxAmount) })
+          }
+        }
+      ];
+    }
 
+    // Fetch transactions with the built query
     const transactions = await Transaction.find(query)
-      .populate({
-        path: 'accountId',
-        select: 'name type'
-      })
+      .populate('accountId')
       .sort({ date: -1 });
 
-    console.log(`Detailed stats API: Found ${transactions.length} transactions`);
+    // Calculate totals
+    const totalIncome = transactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
 
-    const stats = transactions.reduce((acc, transaction) => {
-      const amount = parseFloat(transaction.amount);
-      if (transaction.type === 'income') {
-        acc.totalIncome += amount;
-      } else {
-        acc.totalExpenses += amount;
-      }
-      return acc;
-    }, { totalIncome: 0, totalExpenses: 0 });
-
-    console.log('Detailed stats API: Calculated stats:', stats);
+    const totalExpenses = transactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
 
     return NextResponse.json({
-      ...stats,
       transactions,
-      _debug: {
-        queryParams: { startDate, endDate, accountsParam },
-        transactionCount: transactions.length
-      }
+      totalIncome,
+      totalExpenses
     });
+
   } catch (error) {
-    console.error('Detailed stats API: Unexpected error:', error);
-    console.error('Error stack:', error.stack);
+    console.error('Error fetching transaction stats:', error);
     return NextResponse.json(
-      { 
-        error: 'Internal server error',
-        message: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      },
+      { error: 'Failed to fetch transaction stats' },
       { status: 500 }
     );
   }
