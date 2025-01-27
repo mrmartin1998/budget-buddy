@@ -2,11 +2,13 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/contexts/ToastContext';
 import EditBudgetModal from './EditBudgetModal';
+import DeleteBudgetModal from './DeleteBudgetModal';
 
 export default function BudgetProgress() {
   const { addToast } = useToast();
   const [budgets, setBudgets] = useState([]);
   const [editingBudget, setEditingBudget] = useState(null);
+  const [deletingBudget, setDeletingBudget] = useState(null);
 
   const fetchBudgets = async () => {
     try {
@@ -45,6 +47,15 @@ export default function BudgetProgress() {
     await fetchBudgets();
   };
 
+  const handleDeleteClick = (budget) => {
+    setDeletingBudget(budget);
+  };
+
+  const handleDeleteBudget = async (deletedBudgetId) => {
+    setBudgets(prev => prev.filter(b => b._id !== deletedBudgetId));
+    await fetchBudgets();
+  };
+
   return (
     <div className="space-y-4">
       {Array.isArray(budgets) && budgets.map((budget) => (
@@ -56,12 +67,20 @@ export default function BudgetProgress() {
                 ${Math.abs(budget.spent).toFixed(2)} of ${budget.limit.toFixed(2)}
               </p>
             </div>
-            <button
-              onClick={() => handleEditClick(budget)}
-              className="text-blue-600 hover:text-blue-800 text-sm"
-            >
-              Edit
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleEditClick(budget)}
+                className="text-blue-600 hover:text-blue-800 text-sm"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDeleteClick(budget)}
+                className="text-red-600 hover:text-red-800 text-sm"
+              >
+                Delete
+              </button>
+            </div>
           </div>
           
           <div className="relative pt-1">
@@ -82,6 +101,14 @@ export default function BudgetProgress() {
           budget={editingBudget}
           onClose={() => setEditingBudget(null)}
           onUpdate={handleUpdateBudget}
+        />
+      )}
+
+      {deletingBudget && (
+        <DeleteBudgetModal
+          budget={deletingBudget}
+          onClose={() => setDeletingBudget(null)}
+          onDelete={handleDeleteBudget}
         />
       )}
 
