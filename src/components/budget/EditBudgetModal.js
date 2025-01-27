@@ -1,12 +1,14 @@
 'use client';
 import { useState } from 'react';
 import { useToast } from '@/contexts/ToastContext';
+import { BUDGET_PERIODS, formatPeriodLabel } from '@/lib/utils/budgetPeriodUtils';
 
 export default function EditBudgetModal({ budget, onClose, onUpdate }) {
   const { addToast } = useToast();
   const [formData, setFormData] = useState({
     category: budget.category,
-    limit: budget.limit
+    limit: budget.limit,
+    period: budget.period || BUDGET_PERIODS.MONTHLY
   });
 
   const handleSubmit = async (e) => {
@@ -59,6 +61,23 @@ export default function EditBudgetModal({ budget, onClose, onUpdate }) {
               disabled
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-100"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Period
+            </label>
+            <select
+              value={formData.period}
+              onChange={(e) => setFormData({ ...formData, period: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            >
+              {Object.values(BUDGET_PERIODS).map((period) => (
+                <option key={period} value={period}>
+                  {formatPeriodLabel(period)}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/contexts/ToastContext';
 import EditBudgetModal from './EditBudgetModal';
 import DeleteBudgetModal from './DeleteBudgetModal';
+import { formatPeriodLabel } from '@/lib/utils/budgetPeriodUtils';
 
 export default function BudgetProgress() {
   const { addToast } = useToast();
@@ -13,6 +14,8 @@ export default function BudgetProgress() {
   const fetchBudgets = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Fetching budgets with token:', token ? 'present' : 'missing');
+      
       const response = await fetch('/api/budgets/progress', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -20,14 +23,16 @@ export default function BudgetProgress() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch budgets');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch budgets');
       }
 
       const data = await response.json();
+      console.log('Received budgets:', data);
       setBudgets(data.budgets || []);
     } catch (error) {
       console.error('Fetch budgets error:', error);
-      addToast('Failed to load budgets', 'error');
+      addToast(error.message || 'Failed to load budgets', 'error');
       setBudgets([]);
     }
   };
@@ -64,7 +69,7 @@ export default function BudgetProgress() {
             <div>
               <h3 className="font-medium text-gray-900">{budget.category}</h3>
               <p className="text-sm text-gray-500">
-                ${Math.abs(budget.spent).toFixed(2)} of ${budget.limit.toFixed(2)}
+                ${Math.abs(budget.spent).toFixed(2)} of ${budget.limit.toFixed(2)} {formatPeriodLabel(budget.period)}
               </p>
             </div>
             <div className="flex gap-2">

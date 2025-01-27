@@ -6,7 +6,7 @@ import { headers } from 'next/headers';
 
 export async function POST(request) {
   await dbConnect();
-
+  
   const headersList = headers();
   const authorization = headersList.get('authorization');
 
@@ -30,25 +30,22 @@ export async function POST(request) {
     );
   }
 
-  const body = await request.json();
-  const { category, limit } = body;
-
   try {
-    // Update existing budget or create new one
-    const budget = await Budget.findOneAndUpdate(
-      { userId, category },
-      { limit },
-      { new: true, upsert: true }
-    );
+    const data = await request.json();
+    console.log('Creating budget with data:', { ...data, userId });
 
-    return NextResponse.json(
-      { message: 'Budget set successfully', budget },
-      { status: 200 }
-    );
+    const budget = await Budget.create({
+      ...data,
+      userId
+    });
+
+    console.log('Created budget:', budget);
+
+    return NextResponse.json(budget);
   } catch (error) {
-    console.error('Error setting budget:', error);
+    console.error('Error creating budget:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create budget' },
       { status: 500 }
     );
   }

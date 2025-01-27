@@ -11,23 +11,27 @@ export default function BudgetsPage() {
     setShowForm(false);
   };
 
+  const handleBudgetCreated = () => {
+    setShowForm(false);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold">Budget Management</h1>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => setShowForm(true)}
           className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
         >
-          {showForm ? 'Close Form' : 'Set New Budget'}
+          Set New Budget
         </button>
       </div>
 
       {showForm && (
-        <div className="mb-6 bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Set Budget</h2>
-          <BudgetForm onClose={handleCloseForm} />
-        </div>
+        <BudgetForm 
+          onClose={handleCloseForm} 
+          onBudgetCreated={handleBudgetCreated}
+        />
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

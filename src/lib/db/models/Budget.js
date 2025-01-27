@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
+import { BUDGET_PERIODS } from '@/lib/utils/budgetPeriodUtils';
 
 const budgetSchema = new mongoose.Schema({
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
     required: true
   },
   type: {
@@ -19,10 +19,14 @@ const budgetSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  period: {
+    type: String,
+    enum: Object.values(BUDGET_PERIODS),
+    default: BUDGET_PERIODS.MONTHLY
   }
+}, {
+  timestamps: true
 });
 
-export default mongoose.models.Budget || mongoose.model('Budget', budgetSchema);
+const Budget = mongoose.models.Budget || mongoose.model('Budget', budgetSchema);
+export default Budget;

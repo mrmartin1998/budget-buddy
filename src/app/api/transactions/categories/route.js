@@ -1,6 +1,5 @@
 import { dbConnect } from '@/lib/db/connect';
 import Transaction from '@/lib/db/models/Transaction';
-import Budget from '@/lib/db/models/Budget';
 import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
@@ -32,36 +31,39 @@ export async function GET() {
   }
 
   try {
-    const transactions = await Transaction.find({ 
-      userId,
-      type: 'expense'
+    const result = await Transaction.aggregate([
+      {
+        $match: {
+          userId: userId
+        }
+      },
+      {
+        $group: {
+          _id: '$category',
+          total: { $sum: '$amount' }
+        }
+      },
+      {
+        $project: {
+          category: '$_id',
+          total: 1,
+          _id: 0
+        }
+      }
+    ]);
+
+    console.log('Categories with totals:', result);
+
+    return NextResponse.json({
+      categories: result.map(item => ({
+        category: item.category,
+        total: Math.abs(item.total)
+      }))
     });
-    
-    const budgets = await Budget.find({ userId });
-    const budgetMap = new Map(budgets.map(b => [b.category, b.limit]));
-    
-    // Calculate totals by category
-    const categoryTotals = transactions.reduce((acc, t) => {
-      acc[t.category] = (acc[t.category] || 0) + t.amount;
-      return acc;
-    }, {});
-
-    // Calculate total expenses
-    const totalExpenses = Object.values(categoryTotals).reduce((a, b) => a + b, 0);
-
-    // Format categories with percentages
-    const categories = Object.entries(categoryTotals).map(([name, total]) => ({
-      name,
-      total,
-      percentage: Math.round((total / totalExpenses) * 100),
-      limit: budgetMap.get(name) || 0
-    }));
-
-    return NextResponse.json({ categories });
   } catch (error) {
-    console.error('Error fetching category breakdown:', error);
+    console.error('Error fetching categories:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch categories' },
       { status: 500 }
     );
   }
