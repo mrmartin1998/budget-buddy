@@ -29,10 +29,6 @@
 - [ ] Test "Remember me" functionality
 - [ ] Verify token storage in localStorage
 
-Issues:
-  - On the landing page, the logout button is visible but I haven't logged in yet... it should show login button instead.
-  - There is no remember me functionality.
-
 ## 2. Dashboard Testing
 - [ ] Verify all dashboard components load:
   - [ ] Account Manager
@@ -47,12 +43,6 @@ Issues:
   - [ ] Transaction list
   - [ ] Budget progress
 
-Issues:
-  - Need to more features for accounts:
-    - Can add account but Need to make a manage account, like changing the name, color, etc.
-    - Need more account types, currently only cash and bank.
-    - No way to exit the form (create account) when you start it. 
-
 ## 3. Account Management Testing
 - Create different account types:
   ```
@@ -64,9 +54,6 @@ Issues:
 - Test account balance updates
 - Verify total balance calculation
 - Test account filtering in transaction view
-
-Issues:
-  - Adding the credit card account, the negative balance has no influence what so ever on the dashboard.
 
 ## 4. Transaction Management Testing
 ### Adding Transactions
@@ -89,9 +76,6 @@ Issues:
 - Check balance updates after transactions
 - Test transaction categorization
 
-Issues:
-  - The credit card account start at -500 i added 500 and it shows 500. it should show 0. (- 500 + 500 = 0).
-
 ### Transaction List
 - Test sorting functionality:
   - By date
@@ -101,14 +85,6 @@ Issues:
 - Verify transaction editing
 - Test transaction deletion
 - Check date range filtering
-
-Issues:
-  - Add new filter features:
-    - by amount
-    - by category
-
-Issues:
-  - I keet running into a error to fetch data. I want to take a look at it. 
 
 ## 5. Budget Management Testing
 ### Budget Creation
@@ -155,9 +131,6 @@ Issues:
 - Verify navigation menu responsiveness
 - Check form layouts on different devices
 
-Issues:
-  - UI is alright just needs some polish and it should look better.
-
 ### Visual Elements
 - Verify toast notifications:
   - Success messages
@@ -189,9 +162,6 @@ Issues:
   - Multiple accounts
   - Several budgets
 - Verify real-time updates performance
-
-Issues:
-  - I want a script to test big data sets. 
 
 ## Notes:
 - Document any bugs found with:
