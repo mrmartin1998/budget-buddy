@@ -1,4 +1,4 @@
-name: E-commerce CI
+name: Budget Buddy CI
 
 on:
   push:
@@ -20,10 +20,11 @@ jobs:
         cache: 'npm'
         
     - name: Install dependencies
-      run: npm ci --legacy-peer-deps
+      run: npm ci
       
-    - name: Run tests
-      run: npm run test:ci
+    # Tests will be added in future PR when test infrastructure is set up
+    # - name: Run tests
+    #   run: npm run test:ci
       
     - name: Build
       run: npm run build
