@@ -37,7 +37,6 @@ export async function GET() {
     
     return NextResponse.json({ transactions });
   } catch (error) {
-    console.error('Error fetching recent transactions:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

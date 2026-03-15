@@ -21,12 +21,6 @@ export async function POST(request) {
 
     // Find user by email with password
     const user = await User.findOne({ email }).select('+password');
-    
-    // Debug logging
-    console.log('Login attempt for email:', email);
-    console.log('User found:', user ? 'Yes' : 'No');
-    console.log('Stored hashed password:', user?.password);
-    console.log('Provided password:', password);
 
     if (!user || !user.password) {
       return NextResponse.json(
@@ -37,9 +31,6 @@ export async function POST(request) {
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
-    
-    // Debug logging
-    console.log('Password match:', isMatch);
 
     if (!isMatch) {
       return NextResponse.json(
@@ -50,7 +41,6 @@ export async function POST(request) {
 
     // Verify JWT_SECRET exists
     if (!process.env.JWT_SECRET) {
-      console.error('JWT_SECRET is not defined');
       return NextResponse.json(
         { error: 'Internal server error' },
         { status: 500 }
@@ -87,7 +77,6 @@ export async function POST(request) {
 
     return response;
   } catch (error) {
-    console.error('Error logging in user:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

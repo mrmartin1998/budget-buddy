@@ -31,7 +31,6 @@ export default function RecentTransactions() {
       const data = await res.json();
       setTransactions(data.transactions);
     } catch (error) {
-      console.error('Error fetching recent transactions:', error);
       addToast('Failed to load recent transactions', 'error');
     }
   };

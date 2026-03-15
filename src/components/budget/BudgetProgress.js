@@ -14,7 +14,6 @@ export default function BudgetProgress() {
   const fetchBudgets = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('Fetching budgets with token:', token ? 'present' : 'missing');
       
       const response = await fetch('/api/budgets/progress', {
         headers: {
@@ -28,10 +27,8 @@ export default function BudgetProgress() {
       }
 
       const data = await response.json();
-      console.log('Received budgets:', data);
       setBudgets(data.budgets || []);
     } catch (error) {
-      console.error('Fetch budgets error:', error);
       addToast(error.message || 'Failed to load budgets', 'error');
       setBudgets([]);
     }

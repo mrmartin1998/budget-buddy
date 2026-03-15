@@ -36,7 +36,6 @@ export default function CashFlow() {
         netFlow: (data.totalIncome || 0) - (data.totalExpenses || 0)
       };
     } catch (error) {
-      console.error('Error fetching monthly data:', error);
       return {
         income: 0,
         expenses: 0,
