@@ -32,18 +32,14 @@ export async function POST(request) {
 
   try {
     const data = await request.json();
-    console.log('Creating budget with data:', { ...data, userId });
 
     const budget = await Budget.create({
       ...data,
       userId
     });
 
-    console.log('Created budget:', budget);
-
     return NextResponse.json(budget);
   } catch (error) {
-    console.error('Error creating budget:', error);
     return NextResponse.json(
       { error: 'Failed to create budget' },
       { status: 500 }

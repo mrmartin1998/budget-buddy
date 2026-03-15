@@ -22,7 +22,7 @@ export function AccountProvider({ children }) {
           setAccounts(data.accounts);
         }
       } catch (error) {
-        console.error('Error fetching accounts:', error);
+        // Silent fail - user will see empty accounts
       }
     };
     
@@ -48,7 +48,6 @@ export function AccountProvider({ children }) {
       setAccounts(prev => [...prev, data.account]);
       return data.account;
     } catch (error) {
-      console.error('Error adding account:', error);
       throw error; // Re-throw for component handling
     }
   };
@@ -82,7 +81,6 @@ export function AccountProvider({ children }) {
       setAccounts(prevAccounts => prevAccounts.filter(account => account._id !== id));
       return true;
     } catch (error) {
-      console.error('Error deleting account:', error);
       throw error;
     }
   };
@@ -112,7 +110,7 @@ export function AccountProvider({ children }) {
       setAccounts(updatedAccounts);
       
     } catch (error) {
-      console.error('Error updating accounts:', error);
+      // Silent fail - accounts will update on next fetch
     }
   };
 

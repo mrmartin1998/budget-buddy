@@ -52,8 +52,6 @@ export async function GET() {
       }
     ]);
 
-    console.log('Categories with totals:', result);
-
     return NextResponse.json({
       categories: result.map(item => ({
         category: item.category,
@@ -61,7 +59,6 @@ export async function GET() {
       }))
     });
   } catch (error) {
-    console.error('Error fetching categories:', error);
     return NextResponse.json(
       { error: 'Failed to fetch categories' },
       { status: 500 }

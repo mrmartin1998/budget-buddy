@@ -50,7 +50,6 @@ export async function GET(request) {
 
     return NextResponse.json({ transactions });
   } catch (error) {
-    console.error('Error fetching transactions:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

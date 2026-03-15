@@ -20,7 +20,7 @@ export default function BudgetProgressMini() {
       const data = await res.json();
       setBudgets(data.budgets);
     } catch (error) {
-      console.error('Error fetching budgets:', error);
+      // Silent fail - will show empty budgets
     }
   };
 

@@ -66,7 +66,6 @@ export async function PUT(request, { params }) {
     });
 
   } catch (error) {
-    console.error('Error updating transaction:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -118,7 +117,6 @@ export async function DELETE(request, { params }) {
       balance: newBalance
     });
   } catch (error) {
-    console.error('Error deleting transaction:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

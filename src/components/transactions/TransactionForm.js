@@ -45,7 +45,7 @@ export default function TransactionForm({ onSubmit, initialData = null, isEditin
       const data = await res.json();
       setCategories(data.categories);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      // Silent fail - will show empty categories
     }
   };
 
@@ -76,7 +76,6 @@ export default function TransactionForm({ onSubmit, initialData = null, isEditin
         'success'
       );
     } catch (error) {
-      console.error('Transaction form error:', error);
       addToast(
         error.message || 'Failed to process transaction',
         'error'

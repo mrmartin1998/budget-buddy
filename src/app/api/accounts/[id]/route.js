@@ -63,7 +63,6 @@ export async function DELETE(request, { params }) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error deleting account:', error);
     return NextResponse.json(
       { error: 'Failed to delete account' },
       { status: 500 }
@@ -123,7 +122,6 @@ export async function PUT(request, { params }) {
 
     return NextResponse.json(account);
   } catch (error) {
-    console.error('Error updating account:', error);
     return NextResponse.json(
       { error: 'Failed to update account' },
       { status: 500 }

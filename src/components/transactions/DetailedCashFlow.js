@@ -76,7 +76,6 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
       });
       setTransactions(data.transactions || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
       addToast('Failed to fetch transaction data', 'error');
     }
   };
@@ -142,7 +141,6 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
       
       addToast('Transaction updated successfully', 'success');
     } catch (error) {
-      console.error('Error updating transaction:', error);
       addToast(error.message || 'Failed to update transaction', 'error');
     }
   };
@@ -180,7 +178,6 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
       
       addToast('Transaction deleted successfully', 'success');
     } catch (error) {
-      console.error('Error deleting transaction:', error);
       addToast('Failed to delete transaction', 'error');
     }
   };

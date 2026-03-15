@@ -35,7 +35,6 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
       setShowAddForm(false);
       addToast('Account added successfully', 'success');
     } catch (error) {
-      console.error('Error adding account:', error);
       addToast(error.message || 'Failed to add account', 'error');
     }
   };
@@ -47,7 +46,6 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
         await deleteAccount(accountId);
         addToast('Account deleted successfully', 'success');
       } catch (error) {
-        console.error('Error deleting account:', error);
         addToast('Failed to delete account', 'error');
       } finally {
         setIsDeleting(false);
@@ -60,7 +58,6 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
       await updateAccount(accountId, updatedData);
       addToast('Account updated successfully', 'success');
     } catch (error) {
-      console.error('Error updating account:', error);
       addToast('Failed to update account', 'error');
     }
   };
