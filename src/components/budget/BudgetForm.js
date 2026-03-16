@@ -35,7 +35,6 @@ export default function BudgetForm({ onClose, onBudgetCreated }) {
         setCategories(data.categories);
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
       addToast('Failed to load categories', 'error');
     }
   };

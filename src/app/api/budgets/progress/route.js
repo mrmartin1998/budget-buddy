@@ -33,9 +33,7 @@ export async function GET() {
   }
 
   try {
-    console.log('Fetching budgets for userId:', userId);
     const budgets = await Budget.find({ userId });
-    console.log('Found budgets:', budgets);
 
     const currentDate = new Date();
 
@@ -43,13 +41,6 @@ export async function GET() {
     const budgetPromises = budgets.map(async (budget) => {
       const startDate = getStartDateForPeriod(budget.period, currentDate);
       const endDate = getEndDateForPeriod(budget.period, currentDate);
-
-      console.log(`Processing budget ${budget.category}:`, {
-        startDate,
-        endDate,
-        userId: budget.userId,
-        category: budget.category
-      });
 
       const transactions = await Transaction.aggregate([
         {
@@ -70,8 +61,6 @@ export async function GET() {
         }
       ]);
 
-      console.log('Transactions found:', transactions);
-
       return {
         _id: budget._id,
         category: budget.category,
@@ -82,14 +71,12 @@ export async function GET() {
     });
 
     const processedBudgets = await Promise.all(budgetPromises);
-    console.log('Processed budgets:', processedBudgets);
 
     return NextResponse.json({
       budgets: processedBudgets
     });
 
   } catch (error) {
-    console.error('Error fetching budgets:', error);
     return NextResponse.json(
       { error: 'Failed to fetch budgets' },
       { status: 500 }

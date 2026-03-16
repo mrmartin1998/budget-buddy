@@ -24,7 +24,6 @@ export default function CategoryBreakdown() {
       }
 
       const data = await response.json();
-      console.log('Received categories:', data);
       
       if (data.categories && Array.isArray(data.categories)) {
         // Sort categories by total amount in descending order
@@ -32,7 +31,6 @@ export default function CategoryBreakdown() {
         setCategories(sortedCategories);
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
       addToast('Failed to load categories', 'error');
     }
   };

@@ -101,7 +101,6 @@ export async function GET(request) {
     });
 
   } catch (error) {
-    console.error('Error fetching transaction stats:', error);
     return NextResponse.json(
       { error: 'Failed to fetch transaction stats' },
       { status: 500 }

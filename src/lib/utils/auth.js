@@ -14,7 +14,7 @@ export function generateToken(user) {
       email: user.email 
     },
     JWT_SECRET,
-    { expiresIn: '24h' }
+    { expiresIn: '7d' }
   );
 }
 

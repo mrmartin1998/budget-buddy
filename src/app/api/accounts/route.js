@@ -34,7 +34,6 @@ export async function GET() {
     const accounts = await Account.find({ userId });
     return NextResponse.json({ accounts });
   } catch (error) {
-    console.error('Error fetching accounts:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

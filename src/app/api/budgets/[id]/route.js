@@ -57,7 +57,6 @@ export async function PUT(request, { params }) {
 
     return NextResponse.json(budget);
   } catch (error) {
-    console.error('Error updating budget:', error);
     return NextResponse.json(
       { error: 'Failed to update budget' },
       { status: 500 }
@@ -112,7 +111,6 @@ export async function DELETE(request, { params }) {
 
     return NextResponse.json({ message: 'Budget deleted successfully' });
   } catch (error) {
-    console.error('Error deleting budget:', error);
     return NextResponse.json(
       { error: 'Failed to delete budget' },
       { status: 500 }

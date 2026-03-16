@@ -6,14 +6,12 @@ import { headers } from 'next/headers';
 
 export async function GET() {
   try {
-    console.log('API: Connecting to database...');
     await dbConnect();
     
     const headersList = headers();
     const authorization = headersList.get('authorization');
 
     if (!authorization) {
-      console.error('API: No authorization header');
       return NextResponse.json(
         { error: 'Authorization header missing' },
         { status: 401 }
@@ -26,9 +24,7 @@ export async function GET() {
     try {
       const decoded = verifyToken(token);
       userId = decoded.userId;
-      console.log('API: User ID:', userId);
     } catch (error) {
-      console.error('API: Token verification failed:', error);
       return NextResponse.json(
         { error: 'Invalid or expired token' },
         { status: 401 }
@@ -40,7 +36,6 @@ export async function GET() {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    console.log('API: Fetching transactions...');
     const currentMonthStats = await Transaction.aggregate([
       {
         $match: {
@@ -56,8 +51,6 @@ export async function GET() {
       }
     ]);
 
-    console.log('API: Current month stats:', currentMonthStats);
-
     const income = currentMonthStats.find(stat => stat._id === 'income')?.total || 0;
     const expenses = currentMonthStats.find(stat => stat._id === 'expense')?.total || 0;
     const balance = income - expenses;
@@ -72,11 +65,9 @@ export async function GET() {
       savingsRate
     };
 
-    console.log('API: Sending response:', response);
     return NextResponse.json(response);
 
   } catch (error) {
-    console.error('API Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

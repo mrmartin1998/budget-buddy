@@ -45,7 +45,6 @@ export async function POST() {
       success: true
     });
   } catch (error) {
-    console.error('Error resetting account balances:', error);
     return NextResponse.json(
       { error: 'Failed to reset account balances' },
       { status: 500 }

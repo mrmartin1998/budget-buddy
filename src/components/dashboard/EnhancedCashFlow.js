@@ -53,7 +53,6 @@ export default function EnhancedCashFlow({ selectedAccounts = [], refreshTrigger
         netFlow: (data.totalIncome || 0) - (data.totalExpenses || 0)
       });
     } catch (error) {
-      console.error('Error fetching data:', error);
       setStats({
         income: 0,
         expenses: 0,
