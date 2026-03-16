@@ -54,7 +54,7 @@ export async function POST(request) {
         email: user.email 
       }, 
       process.env.JWT_SECRET, 
-      { expiresIn: '1h' }
+      { expiresIn: '7d' }
     );
 
     const response = NextResponse.json({ 
@@ -72,7 +72,7 @@ export async function POST(request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 3600 // 1 hour
+      maxAge: 604800 // 7 days
     });
 
     return response;
