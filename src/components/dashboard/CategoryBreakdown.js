@@ -1,9 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/contexts/ToastContext';
+import ChartSkeleton from '@/components/common/skeletons/ChartSkeleton';
 
 export default function CategoryBreakdown() {
   const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -11,6 +13,7 @@ export default function CategoryBreakdown() {
   }, []);
 
   const fetchCategories = async () => {
+    setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('/api/transactions/categories', {
@@ -32,6 +35,8 @@ export default function CategoryBreakdown() {
       }
     } catch (error) {
       addToast('Failed to load categories', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -41,24 +46,30 @@ export default function CategoryBreakdown() {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold mb-4">Spending by Category</h2>
-      {categories.map((cat) => (
-        <div key={cat.category} className="space-y-1">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-700">{cat.category}</span>
-            <span className="text-gray-900">${cat.total.toFixed(2)}</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-500 h-2 rounded-full"
-              style={{
-                width: `${(cat.total / maxTotal) * 100}%`
-              }}
-            />
-          </div>
-        </div>
-      ))}
-      {categories.length === 0 && (
-        <p className="text-gray-500 text-center py-4">No transaction data available</p>
+      {isLoading ? (
+        <ChartSkeleton bars={5} />
+      ) : (
+        <>
+          {categories.map((cat) => (
+            <div key={cat.category} className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-700">{cat.category}</span>
+                <span className="text-gray-900">${cat.total.toFixed(2)}</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-500 h-2 rounded-full"
+                  style={{
+                    width: `${(cat.total / maxTotal) * 100}%`
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+          {categories.length === 0 && (
+            <p className="text-gray-500 text-center py-4">No transaction data available</p>
+          )}
+        </>
       )}
     </div>
   );

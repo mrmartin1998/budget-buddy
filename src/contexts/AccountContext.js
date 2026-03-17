@@ -6,11 +6,13 @@ const AccountContext = createContext();
 
 export function AccountProvider({ children }) {
   const [accounts, setAccounts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Fetch accounts from backend on mount
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
+        setIsLoading(true);
         const token = localStorage.getItem('token');
         const res = await fetch('/api/accounts', {
           headers: {
@@ -23,6 +25,8 @@ export function AccountProvider({ children }) {
         }
       } catch (error) {
         // Silent fail - user will see empty accounts
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -117,6 +121,7 @@ export function AccountProvider({ children }) {
   return (
     <AccountContext.Provider value={{
       accounts,
+      isLoading,
       addAccount,
       updateAccount,
       deleteAccount,
