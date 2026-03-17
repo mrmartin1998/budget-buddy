@@ -4,15 +4,18 @@ import { useToast } from '@/contexts/ToastContext';
 import EditBudgetModal from './EditBudgetModal';
 import DeleteBudgetModal from './DeleteBudgetModal';
 import { formatPeriodLabel } from '@/lib/utils/budgetPeriodUtils';
+import CardSkeleton from '@/components/common/skeletons/CardSkeleton';
 
 export default function BudgetProgress() {
   const { addToast } = useToast();
   const [budgets, setBudgets] = useState([]);
   const [editingBudget, setEditingBudget] = useState(null);
   const [deletingBudget, setDeletingBudget] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchBudgets = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem('token');
       
       const response = await fetch('/api/budgets/progress', {
@@ -31,6 +34,8 @@ export default function BudgetProgress() {
     } catch (error) {
       addToast(error.message || 'Failed to load budgets', 'error');
       setBudgets([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,6 +62,10 @@ export default function BudgetProgress() {
     setBudgets(prev => prev.filter(b => b._id !== deletedBudgetId));
     await fetchBudgets();
   };
+
+  if (isLoading) {
+    return <CardSkeleton count={3} />;
+  }
 
   return (
     <div className="space-y-4">

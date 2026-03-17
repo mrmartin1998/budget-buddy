@@ -1,9 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import CardSkeleton from '@/components/common/skeletons/CardSkeleton';
 
 export default function BudgetProgressMini() {
   const [budgets, setBudgets] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchBudgets();
@@ -11,6 +13,7 @@ export default function BudgetProgressMini() {
 
   const fetchBudgets = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem('token');
       const res = await fetch('/api/budgets/progress', {
         headers: {
@@ -21,6 +24,8 @@ export default function BudgetProgressMini() {
       setBudgets(data.budgets);
     } catch (error) {
       // Silent fail - will show empty budgets
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -36,7 +41,10 @@ export default function BudgetProgressMini() {
         </Link>
       </div>
       
-      {budgets.slice(0, 3).map((budget) => (
+      {isLoading ? (
+        <CardSkeleton count={3} />
+      ) : (
+        budgets.slice(0, 3).map((budget) => (
         <div key={budget._id} className="space-y-1">
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">{budget.category}</span>
@@ -57,7 +65,8 @@ export default function BudgetProgressMini() {
             />
           </div>
         </div>
-      ))}
+      ))
+      )}
     </div>
   );
 }

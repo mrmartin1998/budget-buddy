@@ -6,6 +6,7 @@ import { AccountProvider } from '@/contexts/AccountContext';
 import ToastWrapper from '@/components/providers/ToastWrapper';
 import Navbar from '@/components/layout/Navbar';
 import AlertBadge from '@/components/alerts/AlertBadge';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -35,13 +36,15 @@ export default function RootLayout({ children }) {
           <AlertProvider>
             <AccountProvider>
               <ToastWrapper>
-                <div className="min-h-screen bg-gray-50">
-                  <Navbar />
-                  <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    {children}
-                  </main>
-                  <AlertBadge />
-                </div>
+                <ErrorBoundary>
+                  <div className="min-h-screen bg-gray-50">
+                    <Navbar />
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                      {children}
+                    </main>
+                    <AlertBadge />
+                  </div>
+                </ErrorBoundary>
               </ToastWrapper>
             </AccountProvider>
           </AlertProvider>
