@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DateRangeFilter from '@/components/common/DateRangeFilter';
+import ChartSkeleton from '@/components/common/skeletons/ChartSkeleton';
 
 export default function EnhancedCashFlow({ selectedAccounts = [], refreshTrigger = 0 }) {
   const router = useRouter();
@@ -21,9 +22,11 @@ export default function EnhancedCashFlow({ selectedAccounts = [], refreshTrigger
     expenses: 0,
     netFlow: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem('token');
       if (!token) {
         router.push('/login');
@@ -58,6 +61,8 @@ export default function EnhancedCashFlow({ selectedAccounts = [], refreshTrigger
         expenses: 0,
         netFlow: 0
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,50 +80,56 @@ export default function EnhancedCashFlow({ selectedAccounts = [], refreshTrigger
       />
 
       <div className="space-y-4 mt-6">
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-sm font-medium text-gray-700">Income</h3>
-            <span className="text-sm font-medium text-green-600">
-              ${stats.income.toFixed(2)}
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-green-500 h-2 rounded-full"
-              style={{ width: stats.income > 0 ? '100%' : '0%' }}
-            />
-          </div>
-        </div>
+        {isLoading ? (
+          <ChartSkeleton bars={2} />
+        ) : (
+          <>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Income</h3>
+                <span className="text-sm font-medium text-green-600">
+                  ${stats.income.toFixed(2)}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-green-500 h-2 rounded-full"
+                  style={{ width: stats.income > 0 ? '100%' : '0%' }}
+                />
+              </div>
+            </div>
 
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-sm font-medium text-gray-700">Expenses</h3>
-            <span className="text-sm font-medium text-red-600">
-              ${stats.expenses.toFixed(2)}
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-red-500 h-2 rounded-full"
-              style={{ 
-                width: stats.income > 0 
-                  ? `${Math.min((stats.expenses / stats.income) * 100, 100)}%`
-                  : '0%'
-              }}
-            />
-          </div>
-        </div>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Expenses</h3>
+                <span className="text-sm font-medium text-red-600">
+                  ${stats.expenses.toFixed(2)}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-red-500 h-2 rounded-full"
+                  style={{ 
+                    width: stats.income > 0 
+                      ? `${Math.min((stats.expenses / stats.income) * 100, 100)}%`
+                      : '0%'
+                  }}
+                />
+              </div>
+            </div>
 
-        <div className="pt-4 border-t border-gray-200">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-medium text-gray-700">Net Flow</h3>
-            <span className={`text-sm font-medium ${
-              stats.netFlow >= 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              ${stats.netFlow.toFixed(2)}
-            </span>
-          </div>
-        </div>
+            <div className="pt-4 border-t border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-medium text-gray-700">Net Flow</h3>
+                <span className={`text-sm font-medium ${
+                  stats.netFlow >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  ${stats.netFlow.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

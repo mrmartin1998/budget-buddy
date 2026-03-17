@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import ListSkeleton from '@/components/common/skeletons/ListSkeleton';
 
 const TransactionList = ({ transactions }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,7 +11,7 @@ const TransactionList = ({ transactions }) => {
   ) || [];
 
   if (isLoading) {
-    return <p className="text-gray-500 text-center py-4">Loading transactions...</p>;
+    return <ListSkeleton rows={5} />;
   }
 
   if (!transactions || transactions.length === 0) {

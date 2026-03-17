@@ -1,10 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import ChartSkeleton from '@/components/common/skeletons/ChartSkeleton';
 
 export default function CashFlow() {
   const router = useRouter();
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [isLoading, setIsLoading] = useState(true);
   const [monthlyStats, setMonthlyStats] = useState({
     income: 0,
     expenses: 0,
@@ -46,8 +48,10 @@ export default function CashFlow() {
 
   useEffect(() => {
     const updateMonthlyStats = async () => {
+      setIsLoading(true);
       const data = await fetchMonthlyData(selectedMonth);
       setMonthlyStats(data);
+      setIsLoading(false);
     };
     
     updateMonthlyStats();
@@ -72,41 +76,45 @@ export default function CashFlow() {
         </select>
       </div>
 
-      <div className="space-y-4">
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-sm font-medium text-gray-700">Income</h3>
-            <span className="text-sm font-medium text-green-600">
-              ${monthlyStats.income.toFixed(2)}
-            </span>
+      {isLoading ? (
+        <ChartSkeleton bars={2} />
+      ) : (
+        <div className="space-y-4">
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-sm font-medium text-gray-700">Income</h3>
+              <span className="text-sm font-medium text-green-600">
+                ${monthlyStats.income.toFixed(2)}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-green-500 h-2 rounded-full"
+                style={{ width: monthlyStats.income > 0 ? '100%' : '0%' }}
+              />
+            </div>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-green-500 h-2 rounded-full"
-              style={{ width: monthlyStats.income > 0 ? '100%' : '0%' }}
-            />
-          </div>
-        </div>
 
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-sm font-medium text-gray-700">Expenses</h3>
-            <span className="text-sm font-medium text-red-600">
-              ${monthlyStats.expenses.toFixed(2)}
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-red-500 h-2 rounded-full"
-              style={{ 
-                width: monthlyStats.income > 0 
-                  ? `${Math.min((monthlyStats.expenses / monthlyStats.income) * 100, 100)}%`
-                  : '0%'
-              }}
-            />
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-sm font-medium text-gray-700">Expenses</h3>
+              <span className="text-sm font-medium text-red-600">
+                ${monthlyStats.expenses.toFixed(2)}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-red-500 h-2 rounded-full"
+                style={{ 
+                  width: monthlyStats.income > 0 
+                    ? `${Math.min((monthlyStats.expenses / monthlyStats.income) * 100, 100)}%`
+                    : '0%'
+                }}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

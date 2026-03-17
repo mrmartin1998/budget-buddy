@@ -8,6 +8,8 @@ import { useAccounts } from '@/contexts/AccountContext';
 import { useToast } from '@/contexts/ToastContext';
 import AmountRangeFilter from './AmountRangeFilter';
 import CategoryFilter from './CategoryFilter';
+import StatCardSkeleton from '@/components/common/skeletons/StatCardSkeleton';
+import ListSkeleton from '@/components/common/skeletons/ListSkeleton';
 
 export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger = 0 }) {
   const router = useRouter();
@@ -32,9 +34,11 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
   const [transactions, setTransactions] = useState([]);
   const [amountFilter, setAmountFilter] = useState({ min: null, max: null });
   const [categoryFilter, setCategoryFilter] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem('token');
       if (!token) {
         addToast('Please login to continue', 'error');
@@ -77,6 +81,8 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
       setTransactions(data.transactions || []);
     } catch (error) {
       addToast('Failed to fetch transaction data', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -207,28 +213,34 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500">Income</h3>
-          <p className="text-lg font-bold text-green-600">
-            ${stats.income.toFixed(2)}
-          </p>
-        </div>
+        {isLoading ? (
+          <StatCardSkeleton count={3} />
+        ) : (
+          <>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-500">Income</h3>
+              <p className="text-lg font-bold text-green-600">
+                ${stats.income.toFixed(2)}
+              </p>
+            </div>
 
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500">Expenses</h3>
-          <p className="text-lg font-bold text-red-600">
-            ${stats.expenses.toFixed(2)}
-          </p>
-        </div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-500">Expenses</h3>
+              <p className="text-lg font-bold text-red-600">
+                ${stats.expenses.toFixed(2)}
+              </p>
+            </div>
 
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500">Net Flow</h3>
-          <p className={`text-lg font-bold ${
-            stats.netFlow >= 0 ? 'text-green-600' : 'text-red-600'
-          }`}>
-            ${stats.netFlow.toFixed(2)}
-          </p>
-        </div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-500">Net Flow</h3>
+              <p className={`text-lg font-bold ${
+                stats.netFlow >= 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                ${stats.netFlow.toFixed(2)}
+              </p>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="mt-6">
@@ -252,7 +264,9 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
         )}
 
         <div className="space-y-4">
-          {sortedTransactions.length === 0 ? (
+          {isLoading ? (
+            <ListSkeleton rows={5} />
+          ) : sortedTransactions.length === 0 ? (
             <p className="text-gray-500 text-center py-4">
               No transactions found for the selected period
             </p>

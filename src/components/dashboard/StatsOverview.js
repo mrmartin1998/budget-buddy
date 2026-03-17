@@ -1,9 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useAccounts } from '@/contexts/AccountContext';
+import StatCardSkeleton from '@/components/common/skeletons/StatCardSkeleton';
 
 export default function StatsOverview() {
-  const { accounts, getTotalBalance } = useAccounts();
+  const { accounts, isLoading, getTotalBalance } = useAccounts();
   const [stats, setStats] = useState({
     totalBalance: 0,
     totalIncome: 0,
@@ -23,6 +24,10 @@ export default function StatsOverview() {
       totalExpenses: parseFloat(totalExpenses)
     });
   }, [accounts, getTotalBalance]);
+
+  if (isLoading) {
+    return <StatCardSkeleton count={3} />;
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

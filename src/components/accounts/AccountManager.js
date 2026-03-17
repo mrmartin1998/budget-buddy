@@ -5,9 +5,10 @@ import { useAccounts } from '@/contexts/AccountContext';
 import { useToast } from '@/contexts/ToastContext';
 import AccountCard from './AccountCard';
 import { ACCOUNT_COLORS } from '@/lib/constants/colors';
+import CardSkeleton from '@/components/common/skeletons/CardSkeleton';
 
 export default function AccountManager({ selectedAccounts = [], onAccountToggle }) {
-  const { accounts, addAccount, updateAccount, deleteAccount } = useAccounts();
+  const { accounts, isLoading, addAccount, updateAccount, deleteAccount } = useAccounts();
   const { addToast } = useToast();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newAccount, setNewAccount] = useState({
@@ -183,17 +184,23 @@ export default function AccountManager({ selectedAccounts = [], onAccountToggle 
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {accounts.map((account) => (
-          <AccountCard
-            key={account._id}
-            account={account}
-            onDelete={handleDelete}
-            isDeleting={isDeleting}
-            isSelectable={true}
-            isSelected={selectedAccounts.includes(account._id)}
-            onClick={() => onAccountToggle(account._id)}
-          />
-        ))}
+        {isLoading ? (
+          <CardSkeleton count={3} />
+        ) : accounts.length === 0 ? (
+          <p className="text-gray-500 col-span-3 text-center py-4">No accounts yet. Add one to get started!</p>
+        ) : (
+          accounts.map((account) => (
+            <AccountCard
+              key={account._id}
+              account={account}
+              onDelete={handleDelete}
+              isDeleting={isDeleting}
+              isSelectable={true}
+              isSelected={selectedAccounts.includes(account._id)}
+              onClick={() => onAccountToggle(account._id)}
+            />
+          ))
+        )}
       </div>
     </div>
   );
