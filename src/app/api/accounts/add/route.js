@@ -4,6 +4,8 @@ import Transaction from '@/lib/db/models/Transaction';
 import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { accountSchema } from '@/lib/validation/schemas';
+import { validateRequestBody } from '@/lib/validation/middleware';
 
 export async function POST(request) {
   await dbConnect();
@@ -33,25 +35,31 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    const { name, type, balance, color } = body;
+    
+    const validation = validateRequestBody(body, accountSchema);
+    if (!validation.success) {
+      return validation.error;
+    }
+    
+    const { name, type, balance, color } = validation.data;
 
     const newAccount = new Account({
       userId,
       name,
       type,
-      balance: parseFloat(balance),
+      balance,
       color: color || '#3B82F6',
     });
     
     await newAccount.save();
 
-    if (parseFloat(balance) > 0) {
+    if (balance > 0) {
       const transaction = new Transaction({
         userId,
         accountId: newAccount._id,
         type: 'income',
         category: 'Initial Balance',
-        amount: parseFloat(balance),
+        amount: balance,
         date: new Date(),
       });
       await transaction.save();

@@ -3,6 +3,8 @@ import Budget from '@/lib/db/models/Budget';
 import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { budgetSchema } from '@/lib/validation/schemas';
+import { validateRequestBody } from '@/lib/validation/middleware';
 
 export async function POST(request) {
   await dbConnect();
@@ -31,10 +33,15 @@ export async function POST(request) {
   }
 
   try {
-    const data = await request.json();
+    const body = await request.json();
+    
+    const validation = validateRequestBody(body, budgetSchema);
+    if (!validation.success) {
+      return validation.error;
+    }
 
     const budget = await Budget.create({
-      ...data,
+      ...validation.data,
       userId
     });
 

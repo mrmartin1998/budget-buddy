@@ -2,12 +2,20 @@ import { dbConnect } from '@/lib/db/connect';
 import User from '@/lib/db/models/User';
 import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
+import { registerSchema } from '@/lib/validation/schemas';
+import { validateRequestBody } from '@/lib/validation/middleware';
 
 export async function POST(request) {
   await dbConnect();
 
   const body = await request.json();
-  const { email, password } = body;
+  
+  const validation = validateRequestBody(body, registerSchema);
+  if (!validation.success) {
+    return validation.error;
+  }
+  
+  const { email, password } = validation.data;
 
   try {
     // Check if user already exists

@@ -4,20 +4,21 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import { generateToken } from '@/lib/utils/auth';
+import { loginSchema } from '@/lib/validation/schemas';
+import { validateRequestBody } from '@/lib/validation/middleware';
 
 export async function POST(request) {
   try {
     await dbConnect();
 
     const body = await request.json();
-    const { email, password } = body;
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      );
+    
+    const validation = validateRequestBody(body, loginSchema);
+    if (!validation.success) {
+      return validation.error;
     }
+    
+    const { email, password } = validation.data;
 
     // Find user by email with password
     const user = await User.findOne({ email }).select('+password');
