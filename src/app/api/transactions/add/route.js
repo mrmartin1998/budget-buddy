@@ -5,6 +5,8 @@ import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { updateAccountBalance } from '@/lib/utils/accountUtils';
+import { transactionSchema } from '@/lib/validation/schemas';
+import { validateRequestBody } from '@/lib/validation/middleware';
 
 export async function POST(request) {
   await dbConnect();
@@ -33,7 +35,14 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    const { amount, type, category, date, accountId, description } = body;
+    
+    // Validate request body
+    const validation = validateRequestBody(body, transactionSchema);
+    if (!validation.success) {
+      return validation.error;
+    }
+    
+    const { amount, type, category, date, accountId, description } = validation.data;
 
     // Validate the account exists and belongs to user
     const account = await Account.findOne({ _id: accountId, userId });
@@ -47,10 +56,10 @@ export async function POST(request) {
     // Create and save the transaction
     const newTransaction = new Transaction({
       userId,
-      amount: parseFloat(amount),
+      amount,
       type,
       category,
-      date: new Date(date),
+      date,
       accountId: account._id,
       description
     });
