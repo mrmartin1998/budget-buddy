@@ -4,7 +4,8 @@ import Account from '@/lib/db/models/Account';
 import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import mongoose from 'mongoose';
+import { accountSchema } from '@/lib/validation/schemas';
+import { validateRequestBody, validateObjectId } from '@/lib/validation/middleware';
 
 export async function DELETE(request, { params }) {
   await dbConnect();
@@ -35,11 +36,9 @@ export async function DELETE(request, { params }) {
   try {
     const accountId = params.id;
     
-    if (!accountId || !mongoose.Types.ObjectId.isValid(accountId)) {
-      return NextResponse.json(
-        { error: 'Invalid account ID' },
-        { status: 400 }
-      );
+    const idValidation = validateObjectId(accountId, 'accountId');
+    if (!idValidation.success) {
+      return idValidation.error;
     }
 
     // Find the account and verify ownership
@@ -98,19 +97,22 @@ export async function PUT(request, { params }) {
 
   try {
     const accountId = params.id;
-    const updates = await request.json();
+    const body = await request.json();
     
-    if (!accountId || !mongoose.Types.ObjectId.isValid(accountId)) {
-      return NextResponse.json(
-        { error: 'Invalid account ID' },
-        { status: 400 }
-      );
+    const idValidation = validateObjectId(accountId, 'accountId');
+    if (!idValidation.success) {
+      return idValidation.error;
+    }
+    
+    const validation = validateRequestBody(body, accountSchema.partial());
+    if (!validation.success) {
+      return validation.error;
     }
 
     const account = await Account.findOneAndUpdate(
       { _id: accountId, userId },
-      { $set: updates },
-      { new: true }
+      { $set: validation.data },
+      { new: true, runValidators: true }
     );
     
     if (!account) {
