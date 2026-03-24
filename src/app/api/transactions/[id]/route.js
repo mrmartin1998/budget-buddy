@@ -5,6 +5,8 @@ import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { calculateAccountBalance, updateAccountBalance } from '@/lib/utils/accountUtils';
+import { transactionSchema } from '@/lib/validation/schemas';
+import { validateRequestBody, validateObjectId } from '@/lib/validation/middleware';
 
 export async function PUT(request, { params }) {
   await dbConnect();
@@ -27,8 +29,18 @@ export async function PUT(request, { params }) {
   }
 
   try {
+    const idValidation = validateObjectId(id, 'transactionId');
+    if (!idValidation.success) {
+      return idValidation.error;
+    }
+    
     const body = await request.json();
     const { originalTransaction, updatedTransaction } = body;
+    
+    const validation = validateRequestBody(updatedTransaction, transactionSchema.partial());
+    if (!validation.success) {
+      return validation.error;
+    }
 
     // 1. Revert original transaction's effect on old account
     if (originalTransaction.accountId) {
@@ -38,7 +50,7 @@ export async function PUT(request, { params }) {
     // 2. Update the transaction
     const updatedTx = await Transaction.findOneAndUpdate(
       { _id: id, userId },
-      updatedTransaction,
+      validation.data,
       { 
         new: true,
         runValidators: true 
@@ -101,6 +113,11 @@ export async function DELETE(request, { params }) {
   }
 
   try {
+    const idValidation = validateObjectId(id, 'transactionId');
+    if (!idValidation.success) {
+      return idValidation.error;
+    }
+    
     const transaction = await Transaction.findOne({ _id: id, userId });
     if (!transaction) {
       return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });

@@ -4,6 +4,8 @@ import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '@/lib/constants/categories';
+import { categorySchema } from '@/lib/validation/schemas';
+import { validateRequestBody } from '@/lib/validation/middleware';
 
 async function seedDefaultCategories(userId) {
   const defaultCategories = [
@@ -70,7 +72,13 @@ export async function POST(request) {
     const userId = decoded.userId;
 
     const body = await request.json();
-    const { name, type, color } = body;
+    
+    const validation = validateRequestBody(body, categorySchema);
+    if (!validation.success) {
+      return validation.error;
+    }
+    
+    const { name, type, color } = validation.data;
 
     // Check if category already exists
     const existingCategory = await Category.findOne({ 

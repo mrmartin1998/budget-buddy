@@ -3,7 +3,8 @@ import Budget from '@/lib/db/models/Budget';
 import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import mongoose from 'mongoose';
+import { budgetSchema } from '@/lib/validation/schemas';
+import { validateRequestBody, validateObjectId } from '@/lib/validation/middleware';
 
 export async function PUT(request, { params }) {
   await dbConnect();
@@ -33,18 +34,21 @@ export async function PUT(request, { params }) {
 
   try {
     const budgetId = params.id;
-    const updates = await request.json();
+    const body = await request.json();
     
-    if (!budgetId || !mongoose.Types.ObjectId.isValid(budgetId)) {
-      return NextResponse.json(
-        { error: 'Invalid budget ID' },
-        { status: 400 }
-      );
+    const idValidation = validateObjectId(budgetId, 'budgetId');
+    if (!idValidation.success) {
+      return idValidation.error;
+    }
+    
+    const validation = validateRequestBody(body, budgetSchema.partial());
+    if (!validation.success) {
+      return validation.error;
     }
 
     const budget = await Budget.findOneAndUpdate(
       { _id: budgetId, userId },
-      { $set: updates },
+      { $set: validation.data },
       { new: true }
     );
     
@@ -93,11 +97,9 @@ export async function DELETE(request, { params }) {
   try {
     const budgetId = params.id;
     
-    if (!budgetId || !mongoose.Types.ObjectId.isValid(budgetId)) {
-      return NextResponse.json(
-        { error: 'Invalid budget ID' },
-        { status: 400 }
-      );
+    const idValidation = validateObjectId(budgetId, 'budgetId');
+    if (!idValidation.success) {
+      return idValidation.error;
     }
 
     const budget = await Budget.findOneAndDelete({ _id: budgetId, userId });
