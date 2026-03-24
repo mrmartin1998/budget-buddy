@@ -6,9 +6,16 @@ import { NextResponse } from 'next/server';
 import { generateToken } from '@/lib/utils/auth';
 import { loginSchema } from '@/lib/validation/schemas';
 import { validateRequestBody } from '@/lib/validation/middleware';
+import { authRateLimit } from '@/middleware/rateLimit';
 
 export async function POST(request) {
   try {
+    // Rate limiting check - 5 attempts per 15 minutes
+    const rateLimitResult = authRateLimit(request);
+    if (!rateLimitResult.success) {
+      return rateLimitResult.error;
+    }
+
     await dbConnect();
 
     const body = await request.json();
