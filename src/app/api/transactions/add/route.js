@@ -4,7 +4,7 @@ import Account from '@/lib/db/models/Account';
 import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { updateAccountBalance } from '@/lib/utils/accountUtils';
+import { updateAccountBalance, withTransaction } from '@/lib/utils/accountUtils';
 import { transactionSchema } from '@/lib/validation/schemas';
 import { validateRequestBody } from '@/lib/validation/middleware';
 
@@ -53,40 +53,44 @@ export async function POST(request) {
       );
     }
 
-    // Create and save the transaction
-    const newTransaction = new Transaction({
-      userId,
-      amount,
-      type,
-      category,
-      date,
-      accountId: account._id,
-      description
-    });
-    
-    const savedTransaction = await newTransaction.save();
-    const populatedTransaction = await Transaction.findById(savedTransaction._id)
-      .populate({
-        path: 'accountId',
-        select: 'name type'
+    // Use atomic transaction to ensure data consistency
+    // Both transaction creation and balance update succeed or both fail
+    const result = await withTransaction(async (session) => {
+      // Create and save the transaction
+      const newTransaction = new Transaction({
+        userId,
+        amount,
+        type,
+        category,
+        date,
+        accountId: account._id,
+        description
       });
+      
+      const savedTransaction = await newTransaction.save({ session });
+      
+      // Update account balance atomically in same transaction
+      const updatedAccount = await updateAccountBalance(userId, account._id, { session });
+      
+      if (!updatedAccount) {
+        throw new Error('Failed to update account balance');
+      }
 
-    // Update account balance using the utility function
-    const updatedAccount = await updateAccountBalance(userId, account._id);
-    if (!updatedAccount) {
-      return NextResponse.json(
-        { error: 'Failed to update account balance' },
-        { status: 500 }
-      );
-    }
+      // Populate transaction details
+      const populatedTransaction = await Transaction.findById(savedTransaction._id)
+        .populate({
+          path: 'accountId',
+          select: 'name type'
+        })
+        .session(session);
 
-    return NextResponse.json(
-      { 
+      return {
         transaction: populatedTransaction,
         account: updatedAccount
-      },
-      { status: 201 }
-    );
+      };
+    });
+
+    return NextResponse.json(result, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
