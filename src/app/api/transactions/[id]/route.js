@@ -4,7 +4,7 @@ import Account from '@/lib/db/models/Account';
 import { verifyToken } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { calculateAccountBalance, updateAccountBalance } from '@/lib/utils/accountUtils';
+import { updateAccountBalance, withTransaction } from '@/lib/utils/accountUtils';
 import { transactionSchema } from '@/lib/validation/schemas';
 import { validateRequestBody, validateObjectId } from '@/lib/validation/middleware';
 
@@ -42,40 +42,42 @@ export async function PUT(request, { params }) {
       return validation.error;
     }
 
-    // 1. Revert original transaction's effect on old account
-    if (originalTransaction.accountId) {
-      await updateAccountBalance(userId, originalTransaction.accountId);
-    }
+    // Use atomic transaction for update and balance recalculation
+    const result = await withTransaction(async (session) => {
+      // 1. Update the transaction
+      const updatedTx = await Transaction.findOneAndUpdate(
+        { _id: id, userId },
+        validation.data,
+        { 
+          new: true,
+          runValidators: true,
+          session
+        }
+      ).populate({
+        path: 'accountId',
+        select: 'name type balance'
+      });
 
-    // 2. Update the transaction
-    const updatedTx = await Transaction.findOneAndUpdate(
-      { _id: id, userId },
-      validation.data,
-      { 
-        new: true,
-        runValidators: true 
+      if (!updatedTx) {
+        throw new Error('Transaction not found');
       }
-    ).populate({
-      path: 'accountId',
-      select: 'name type balance'
+
+      // 2. Update new account's balance
+      const newAccount = await updateAccountBalance(userId, updatedTx.accountId, { session });
+
+      // 3. If accounts are different, update old account too
+      if (originalTransaction.accountId && 
+          originalTransaction.accountId !== updatedTx.accountId.toString()) {
+        await updateAccountBalance(userId, originalTransaction.accountId, { session });
+      }
+
+      return { 
+        transaction: updatedTx,
+        balance: newAccount
+      };
     });
 
-    if (!updatedTx) {
-      return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
-    }
-
-    // 3. Update new account's balance
-    const newBalance = await updateAccountBalance(userId, updatedTx.accountId);
-
-    // 4. If accounts are different, update both
-    if (originalTransaction.accountId !== updatedTx.accountId.toString()) {
-      await updateAccountBalance(userId, originalTransaction.accountId);
-    }
-
-    return NextResponse.json({ 
-      transaction: updatedTx,
-      balance: newBalance
-    });
+    return NextResponse.json(result);
 
   } catch (error) {
     return NextResponse.json(
@@ -124,15 +126,21 @@ export async function DELETE(request, { params }) {
     }
 
     const accountId = transaction.accountId;
-    await Transaction.findByIdAndDelete(id);
     
-    // Update account balance after deletion
-    const newBalance = await updateAccountBalance(userId, accountId);
-
-    return NextResponse.json({ 
-      message: 'Transaction deleted successfully',
-      balance: newBalance
+    // Use atomic transaction for deletion and balance update
+    const result = await withTransaction(async (session) => {
+      await Transaction.findByIdAndDelete(id, { session });
+      
+      // Update account balance after deletion
+      const updatedBalance = await updateAccountBalance(userId, accountId, { session });
+      
+      return { 
+        message: 'Transaction deleted successfully',
+        balance: updatedBalance
+      };
     });
+
+    return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
