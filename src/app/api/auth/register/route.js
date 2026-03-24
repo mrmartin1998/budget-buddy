@@ -4,8 +4,15 @@ import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
 import { registerSchema } from '@/lib/validation/schemas';
 import { validateRequestBody } from '@/lib/validation/middleware';
+import { authRateLimit } from '@/middleware/rateLimit';
 
 export async function POST(request) {
+  // Rate limiting check - 5 attempts per 15 minutes
+  const rateLimitResult = authRateLimit(request);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.error;
+  }
+
   await dbConnect();
 
   const body = await request.json();
