@@ -28,5 +28,9 @@ const budgetSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Database indexes for query optimization
+budgetSchema.index({ userId: 1, category: 1 }, { unique: true }); // One budget per category per user
+budgetSchema.index({ userId: 1, period: 1 }); // Period-based budget queries
+
 const Budget = mongoose.models.Budget || mongoose.model('Budget', budgetSchema);
 export default Budget;

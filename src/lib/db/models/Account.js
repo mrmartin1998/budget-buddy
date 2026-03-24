@@ -17,6 +17,10 @@ const AccountSchema = new mongoose.Schema({
   toObject: { getters: true }
 });
 
+// Database indexes for query optimization
+AccountSchema.index({ userId: 1, type: 1 }); // User's accounts by type
+AccountSchema.index({ userId: 1, createdAt: -1 }); // Newest accounts first
+
 // Add a method to update balance
 AccountSchema.methods.updateBalance = function(amount, type) {
   this.balance = type === 'income' 

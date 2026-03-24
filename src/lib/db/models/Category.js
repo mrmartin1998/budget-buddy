@@ -13,5 +13,7 @@ const categorySchema = new mongoose.Schema({
 
 // Compound index to ensure unique categories per user
 categorySchema.index({ userId: 1, name: 1 }, { unique: true });
+// Index for filtering by type (income vs expense)
+categorySchema.index({ userId: 1, type: 1 });
 
 export default mongoose.models.Category || mongoose.model('Category', categorySchema);
