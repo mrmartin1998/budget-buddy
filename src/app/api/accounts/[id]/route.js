@@ -6,6 +6,8 @@ import { NextResponse } from 'next/server';
 import { accountSchema } from '@/lib/validation/schemas';
 import { validateRequestBody, validateObjectId } from '@/lib/validation/middleware';
 
+export const dynamic = 'force-dynamic';
+
 export async function DELETE(request, { params }) {
   await dbConnect();
   

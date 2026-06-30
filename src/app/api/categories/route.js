@@ -6,6 +6,8 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '@/lib/constants/categorie
 import { categorySchema } from '@/lib/validation/schemas';
 import { validateRequestBody } from '@/lib/validation/middleware';
 
+export const dynamic = 'force-dynamic';
+
 async function seedDefaultCategories(userId) {
   const defaultCategories = [
     ...EXPENSE_CATEGORIES.map(name => ({

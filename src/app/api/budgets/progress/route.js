@@ -5,6 +5,8 @@ import { getUserIdFromCookies } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 import { getStartDateForPeriod, getEndDateForPeriod } from '@/lib/utils/budgetPeriodUtils';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   await dbConnect();
   

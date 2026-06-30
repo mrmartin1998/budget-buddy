@@ -7,6 +7,8 @@ import { updateAccountBalance, withTransaction } from '@/lib/utils/accountUtils'
 import { transactionSchema } from '@/lib/validation/schemas';
 import { validateRequestBody } from '@/lib/validation/middleware';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
   await dbConnect();
 

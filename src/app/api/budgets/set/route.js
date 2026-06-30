@@ -5,6 +5,8 @@ import { NextResponse } from 'next/server';
 import { budgetSchema } from '@/lib/validation/schemas';
 import { validateRequestBody } from '@/lib/validation/middleware';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
   await dbConnect();
   

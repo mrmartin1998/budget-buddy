@@ -3,6 +3,8 @@ import { dbConnect } from '@/lib/db/connect';
 import Transaction from '@/lib/db/models/Transaction';
 import { getUserIdFromCookies } from '@/lib/utils/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request, { params }) {
   try {
     await dbConnect();

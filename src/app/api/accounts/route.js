@@ -3,6 +3,8 @@ import Account from '@/lib/db/models/Account';
 import { getUserIdFromCookies } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   await dbConnect();
   
