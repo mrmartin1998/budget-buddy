@@ -15,11 +15,8 @@ export default function CategoryManager() {
 
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch('/api/categories', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
       const data = await res.json();
       setCategories(data.categories);
@@ -33,18 +30,17 @@ export default function CategoryManager() {
     if (!newCategory.trim()) return;
 
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch('/api/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: newCategory,
           type: categoryType,
           color: categoryColor,
         }),
+        credentials: 'include',
       });
 
       if (!res.ok) {

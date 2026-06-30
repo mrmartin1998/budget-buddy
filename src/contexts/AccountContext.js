@@ -13,11 +13,8 @@ export function AccountProvider({ children }) {
     const fetchAccounts = async () => {
       try {
         setIsLoading(true);
-        const token = localStorage.getItem('token');
         const res = await fetch('/api/accounts', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: 'include',
         });
         const data = await res.json();
         if (res.ok) {
@@ -35,14 +32,13 @@ export function AccountProvider({ children }) {
 
   const addAccount = async (newAccount) => {
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch('/api/accounts/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(newAccount),
+        credentials: 'include',
       });
       
       const data = await res.json();
@@ -64,16 +60,9 @@ export function AccountProvider({ children }) {
 
   const deleteAccount = async (id) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authentication token missing');
-      }
-
       const res = await fetch(`/api/accounts/${id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       const data = await res.json();
@@ -98,11 +87,8 @@ export function AccountProvider({ children }) {
     
     try {
       // Fetch fresh account data after transaction
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/accounts', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
         cache: 'no-store'
       });
 
