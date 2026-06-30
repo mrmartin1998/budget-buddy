@@ -1,11 +1,12 @@
 import { dbConnect } from '@/lib/db/connect';
 import Category from '@/lib/db/models/Category';
-import { verifyToken } from '@/lib/utils/auth';
+import { getUserIdFromCookies } from '@/lib/utils/auth';
 import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '@/lib/constants/categories';
 import { categorySchema } from '@/lib/validation/schemas';
 import { validateRequestBody } from '@/lib/validation/middleware';
+
+export const dynamic = 'force-dynamic';
 
 async function seedDefaultCategories(userId) {
   const defaultCategories = [
@@ -31,17 +32,10 @@ async function seedDefaultCategories(userId) {
 export async function GET() {
   await dbConnect();
   
-  const headersList = headers();
-  const authorization = headersList.get('authorization');
-
-  if (!authorization) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const { userId, error } = getUserIdFromCookies();
+  if (error) return error;
 
   try {
-    const token = authorization.split(' ')[1];
-    const decoded = verifyToken(token);
-    const userId = decoded.userId;
 
     let categories = await Category.find({ userId });
 
@@ -59,17 +53,10 @@ export async function GET() {
 export async function POST(request) {
   await dbConnect();
   
-  const headersList = headers();
-  const authorization = headersList.get('authorization');
-
-  if (!authorization) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const { userId, error } = getUserIdFromCookies();
+  if (error) return error;
 
   try {
-    const token = authorization.split(' ')[1];
-    const decoded = verifyToken(token);
-    const userId = decoded.userId;
 
     const body = await request.json();
     

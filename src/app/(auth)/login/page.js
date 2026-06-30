@@ -30,10 +30,7 @@ export default function Login() {
         throw new Error(data.error || 'Something went wrong');
       }
 
-      // Store the token in localStorage
-      localStorage.setItem('token', data.token);
-
-      // Force a hard redirect to dashboard
+      // Token is stored in httpOnly cookie, redirect to dashboard
       window.location.href = '/dashboard';
     } catch (error) {
       setError(error.message);

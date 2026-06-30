@@ -36,11 +36,8 @@ export default function TransactionForm({ onSubmit, initialData = null, isEditin
 
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch('/api/categories', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
       const data = await res.json();
       setCategories(data.categories);

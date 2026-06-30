@@ -14,14 +14,13 @@ export default function EditBudgetModal({ budget, onClose, onUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`/api/budgets/${budget._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
+        credentials: 'include',
       });
 
       if (!res.ok) {

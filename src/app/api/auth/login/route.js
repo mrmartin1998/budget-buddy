@@ -67,15 +67,14 @@ export async function POST(request) {
 
     const response = NextResponse.json({ 
       success: true,
-      message: 'Login successful', 
-      token,
+      message: 'Login successful',
       user: {
         id: user._id,
         email: user.email
       }
     }, { status: 200 });
 
-    // Set HTTP-only cookie
+    // Set HTTP-only cookie (token only stored here, not in response body)
     response.cookies.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

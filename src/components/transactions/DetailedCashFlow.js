@@ -39,12 +39,6 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('token');
-      if (!token) {
-        addToast('Please login to continue', 'error');
-        router.push('/login');
-        return;
-      }
 
       let url = `/api/transactions/detailed-stats?start=${startDate}&end=${endDate}`;
       if (selectedAccounts.length > 0) {
@@ -61,9 +55,7 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
       }
 
       const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
         cache: 'no-store',
         next: { revalidate: 0 }
       });
@@ -100,8 +92,6 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
 
   const handleUpdate = async (updatedData) => {
     try {
-      const token = localStorage.getItem('token');
-      
       // Include both original and updated data for proper balance calculations
       const payload = {
         originalTransaction: {
@@ -118,9 +108,9 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -157,13 +147,9 @@ export default function DetailedCashFlow({ selectedAccounts = [], refreshTrigger
 
   const handleDelete = async (transactionId) => {
     try {
-      const token = localStorage.getItem('token');
-      
       const response = await fetch(`/api/transactions/${transactionId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (!response.ok) {

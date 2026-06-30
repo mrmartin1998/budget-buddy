@@ -27,11 +27,6 @@ export default function EnhancedCashFlow({ selectedAccounts = [], refreshTrigger
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
 
       let url = `/api/transactions/stats?start=${startDate}&end=${endDate}`;
       if (selectedAccounts.length > 0) {
@@ -39,9 +34,7 @@ export default function EnhancedCashFlow({ selectedAccounts = [], refreshTrigger
       }
 
       const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
         cache: 'no-store'
       });
       

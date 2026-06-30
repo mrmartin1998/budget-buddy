@@ -19,11 +19,8 @@ export default function BudgetForm({ onClose, onBudgetCreated }) {
 
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/transactions/categories', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -42,14 +39,13 @@ export default function BudgetForm({ onClose, onBudgetCreated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch('/api/budgets/set', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
+        credentials: 'include',
       });
 
       if (!res.ok) {

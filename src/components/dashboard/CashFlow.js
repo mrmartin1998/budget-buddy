@@ -15,16 +15,8 @@ export default function CashFlow() {
 
   const fetchMonthlyData = async (month) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
       const res = await fetch(`/api/transactions/monthly/${month}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
       
       if (!res.ok) {
