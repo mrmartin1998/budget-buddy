@@ -6,12 +6,9 @@ export default function DeleteBudgetModal({ budget, onClose, onDelete }) {
 
   const handleDelete = async () => {
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`/api/budgets/${budget._id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (!res.ok) {

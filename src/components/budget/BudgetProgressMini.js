@@ -14,11 +14,8 @@ export default function BudgetProgressMini() {
   const fetchBudgets = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('token');
       const res = await fetch('/api/budgets/progress', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
       const data = await res.json();
       setBudgets(data.budgets);

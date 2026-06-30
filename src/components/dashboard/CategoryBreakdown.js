@@ -15,11 +15,8 @@ export default function CategoryBreakdown() {
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/transactions/categories', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (!response.ok) {

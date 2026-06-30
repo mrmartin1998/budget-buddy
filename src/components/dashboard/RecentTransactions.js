@@ -15,16 +15,8 @@ export default function RecentTransactions() {
   const fetchRecentTransactions = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        addToast('Please login to view transactions', 'error');
-        return;
-      }
-
       const res = await fetch('/api/transactions/recent', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (!res.ok) {

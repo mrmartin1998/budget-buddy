@@ -6,10 +6,8 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-    }
+    // Auth check is now handled by AuthProvider
+    // This layout can be simplified or removed if not needed
   }, [router]);
 
   return (

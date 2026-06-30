@@ -24,17 +24,10 @@ export default function Transactions() {
 
   const handleAddTransaction = async (formData) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
       const res = await fetch('/api/transactions/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
         credentials: 'include',

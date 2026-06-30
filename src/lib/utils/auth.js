@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -42,4 +43,45 @@ export async function isAuthenticated() {
   
   const user = getUserFromToken(token);
   return !!user;
+}
+
+/**
+ * Extract userId from the token stored in httpOnly cookies
+ * Returns { userId, error } where error is a NextResponse if authentication fails
+ */
+export function getUserIdFromCookies() {
+  const token = getTokenFromCookies();
+  
+  if (!token) {
+    return {
+      userId: null,
+      error: NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    };
+  }
+
+  try {
+    const decoded = verifyToken(token);
+    if (!decoded || !decoded.userId) {
+      return {
+        userId: null,
+        error: NextResponse.json(
+          { error: 'Invalid token' },
+          { status: 401 }
+        )
+      };
+    }
+    
+    return { userId: decoded.userId, error: null };
+  } catch (error) {
+    return {
+      userId: null,
+      error: NextResponse.json(
+        { error: 'Invalid or expired token' },
+        { status: 401 }
+      )
+    };
+  }
 }
