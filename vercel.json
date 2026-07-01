@@ -1,18 +1,7 @@
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "package.json",
-            "use": "@vercel/next"
-        }
-    ],
-    "env": {
-        "MONGODB_URI": "@mongodb-uri",
-        "JWT_SECRET": "@jwt-secret"
-    },
     "regions": ["iad1"],
     "functions": {
-        "api/**/*.js": {
+        "app/api/**/*.js": {
             "memory": 1024,
             "maxDuration": 10
         }
