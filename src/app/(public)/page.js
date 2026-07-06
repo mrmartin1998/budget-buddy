@@ -13,6 +13,12 @@ export default function Home() {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Your personal finance companion. Track expenses, set budgets, and achieve your financial goals with ease.
           </p>
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg max-w-md mx-auto">
+            <p className="text-sm text-gray-700 font-medium mb-1">Try it out with demo account:</p>
+            <p className="text-sm text-gray-600">
+              <span className="font-mono">demo@budgetbuddy.com</span> / <span className="font-mono">Demo2024!</span>
+            </p>
+          </div>
           <div className="flex gap-4 justify-center">
             <Link
               href="/signup"
