@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Next.js](https://img.shields.io/badge/Next.js-14.2-black?style=flat&logo=next.js)
-![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat&logo=react)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Latest-47A248?style=flat&logo=mongodb)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=flat&logo=tailwind-css)
 ![Vitest](https://img.shields.io/badge/Vitest-Tested-6E9F18?style=flat&logo=vitest)
@@ -11,7 +11,7 @@
 
 **A production-ready personal finance management platform with multi-account support, intelligent budget tracking, and real-time expense monitoring.**
 
-[Features](#-features) • [Tech Stack](#-tech-stack) • [Architecture](#-system-architecture) • [Getting Started](#-getting-started) • [API](#-api-documentation)
+[Features](#-features) • [Try Demo](#-try-the-demo) • [Tech Stack](#-tech-stack) • [Architecture](#-system-architecture) • [Getting Started](#-getting-started)
 
 </div>
 
@@ -21,6 +21,7 @@
 
 - [Overview](#-overview)
 - [Features](#-features)
+- [Try the Demo](#-try-the-demo)
 - [Tech Stack](#-tech-stack)
 - [System Architecture](#-system-architecture)
 - [Getting Started](#-getting-started)
@@ -61,7 +62,7 @@ Budget Buddy provides an elegant, intuitive platform for complete financial over
 
 ### 💰 Transaction Tracking
 - Add income and expense transactions with detailed information
-- Smart categorization system with 20+ predefined categories
+- Smart categorization system with 20 predefined categories
 - Custom category creation and management
 - Transaction editing and deletion with balance recalculation
 - Date range filtering for specific time period analysis
@@ -104,7 +105,6 @@ Budget Buddy provides an elegant, intuitive platform for complete financial over
 - **Toast Notifications**: Success/error feedback for all actions
 - **Alert System**: Budget threshold warnings
 - **Responsive Design**: Mobile-first approach with seamless tablet/desktop scaling
-- **Dark Mode Ready**: Prepared for theme switching
 
 ### 🧪 Quality Assurance
 - 25+ comprehensive tests covering utilities and business logic
@@ -112,6 +112,46 @@ Budget Buddy provides an elegant, intuitive platform for complete financial over
 - Code coverage reporting
 - ESLint for code quality
 - Production build verification
+
+---
+
+## 🎮 Try the Demo
+
+**Want to explore Budget Buddy without creating an account?** Use our pre-populated demo account:
+
+### Demo Credentials
+```
+Email: demo@budgetbuddy.com
+Password: Demo2024!
+```
+
+### What's Included
+The demo account comes with realistic financial data to showcase all features:
+
+- **5 Accounts** with $39,520 total net worth:
+  - Main Checking: $2,850
+  - Savings Account: $12,000
+  - Credit Card: -$450 (demonstrates debt tracking)
+  - Cash Wallet: $120
+  - Investment Portfolio: $25,000
+
+- **88 Transactions** spanning 3 months (April-June 2026):
+  - Monthly salary deposits
+  - Freelance income
+  - Investment returns
+  - Realistic expense patterns across multiple categories
+
+- **8 Budget Configurations** demonstrating all features:
+  - Multiple period types (daily, weekly, monthly, yearly)
+  - All status zones (🟢 under budget, 🟡 approaching limit, 🔴 over budget)
+  - Real-time progress tracking
+
+### Reset Demo Data
+Developers can reset the demo data anytime using:
+```bash
+npm run seed:demo
+```
+This script is fully idempotent and will clean up existing data before creating fresh demo content.
 
 ---
 
@@ -211,7 +251,6 @@ erDiagram
     
     User {
         ObjectId _id PK
-        string username
         string email
         string password
         datetime createdAt
@@ -474,7 +513,7 @@ npm run lint         # Run ESLint
 
 ### Initial Setup
 
-1. **Create an account** - Sign up with username, email, and password
+1. **Create an account** - Sign up with email and password
 2. **Add your first account** - Go to Transactions page and add a bank account, cash account, etc.
 3. **Create categories** - Visit Categories page to customize your expense/income categories
 4. **Set budgets** - Go to Budgets page and set spending limits for categories
@@ -492,7 +531,6 @@ Register a new user account.
 **Request Body:**
 ```json
 {
-  "username": "john_doe",
   "email": "john@example.com",
   "password": "SecurePass123!"
 }
@@ -501,12 +539,7 @@ Register a new user account.
 **Response (201):**
 ```json
 {
-  "message": "User registered successfully",
-  "user": {
-    "_id": "65abc123...",
-    "username": "john_doe",
-    "email": "john@example.com"
-  }
+  "message": "User registered successfully"
 }
 ```
 
@@ -527,7 +560,6 @@ Authenticate user and receive JWT token.
   "message": "Login successful",
   "user": {
     "_id": "65abc123...",
-    "username": "john_doe",
     "email": "john@example.com"
   }
 }

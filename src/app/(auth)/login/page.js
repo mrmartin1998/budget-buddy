@@ -41,6 +41,11 @@ export default function Login() {
     <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
       
+      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+        <p className="text-sm text-gray-700 font-medium mb-1">Try the demo account:</p>
+        <p className="text-xs text-gray-600 font-mono">demo@budgetbuddy.com / Demo2024!</p>
+      </div>
+      
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
           {error}

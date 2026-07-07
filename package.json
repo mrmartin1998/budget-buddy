@@ -27,7 +27,8 @@
     "test": "vitest",
     "test:ci": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "seed:demo": "node scripts/seed-demo-data.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
